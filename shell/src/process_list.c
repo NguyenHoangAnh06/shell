@@ -20,7 +20,12 @@ void reap_processes(void)
         DWORD exit_code;
         if (!bg_procs[i].active) continue;
         exit_code = STILL_ACTIVE;
-        GetExitCodeProcess(bg_procs[i].hProcess, &exit_code);
+        if (!GetExitCodeProcess(bg_procs[i].hProcess, &exit_code)) {
+            fprintf(stderr, "list: GetExitCodeProcess failed for PID %lu (error %lu)\n",
+                    (unsigned long)bg_procs[i].pid,
+                    (unsigned long)GetLastError());
+            continue;
+        }
         if (exit_code != STILL_ACTIVE) {
             /*
              * Fix #1 — Handle Leak:
@@ -86,7 +91,9 @@ int kill_process(DWORD pid)
         return -1;
     }
     CloseHandle(p->hProcess);
+    p->hProcess = INVALID_HANDLE_VALUE;
     p->active = 0;
+    p->status = PROC_DONE;
     bg_count--;
     printf("[%lu] Killed\n", (unsigned long)pid);
     return 0;
@@ -103,6 +110,7 @@ static int toggle_process_threads(DWORD pid, int suspend)
     HANDLE snap;
     THREADENTRY32 te;
     int found = 0;
+    int failed = 0;
 
     snap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
     if (snap == INVALID_HANDLE_VALUE) return -1;
@@ -112,25 +120,34 @@ static int toggle_process_threads(DWORD pid, int suspend)
     if (Thread32First(snap, &te)) {
         do {
             HANDLE ht;
+            DWORD rc;
             if (te.th32OwnerProcessID != pid) continue;
             ht = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te.th32ThreadID);
-            if (!ht) continue;
+            if (!ht) {
+                failed = 1;
+                continue;
+            }
             if (suspend)
-                SuspendThread(ht);
+                rc = SuspendThread(ht);
             else
-                ResumeThread(ht);
+                rc = ResumeThread(ht);
+            if (rc == (DWORD)-1) failed = 1;
             CloseHandle(ht);
             found = 1;
         } while (Thread32Next(snap, &te));
     }
     CloseHandle(snap);
-    return found ? 0 : -1;
+    return (found && !failed) ? 0 : -1;
 }
 
 int stop_process(DWORD pid)
 {
     BgProcess *p = find_proc(pid);
     if (!p) { fprintf(stderr, "stop: no background process with PID %lu\n", (unsigned long)pid); return -1; }
+    if (p->status == PROC_STOPPED) {
+        fprintf(stderr, "stop: process %lu is already stopped\n", (unsigned long)pid);
+        return -1;
+    }
     if (toggle_process_threads(pid, 1) < 0) {
         fprintf(stderr, "stop: failed to suspend process %lu\n", (unsigned long)pid); return -1;
     }
@@ -143,6 +160,10 @@ int resume_process(DWORD pid)
 {
     BgProcess *p = find_proc(pid);
     if (!p) { fprintf(stderr, "resume: no background process with PID %lu\n", (unsigned long)pid); return -1; }
+    if (p->status != PROC_STOPPED) {
+        fprintf(stderr, "resume: process %lu is not stopped\n", (unsigned long)pid);
+        return -1;
+    }
     if (toggle_process_threads(pid, 0) < 0) {
         fprintf(stderr, "resume: failed to resume process %lu\n", (unsigned long)pid); return -1;
     }
@@ -159,7 +180,9 @@ void kill_all_processes(void)
         if (!bg_procs[i].active) continue;
         TerminateProcess(bg_procs[i].hProcess, 1);
         CloseHandle(bg_procs[i].hProcess);
+        bg_procs[i].hProcess = INVALID_HANDLE_VALUE;
         bg_procs[i].active = 0;
+        bg_procs[i].status = PROC_DONE;
     }
     bg_count = 0;
 }

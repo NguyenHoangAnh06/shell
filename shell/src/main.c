@@ -19,16 +19,19 @@
 #include "process.h"
 #include "process_list.h"
 #include "builtins.h"
+#include "shell_utils.h"
 
 
 /* ─────────────────────────────────────────────────────── */
 static BOOL WINAPI ctrl_handler(DWORD ctrl_type)
 {
     if (ctrl_type == CTRL_C_EVENT || ctrl_type == CTRL_BREAK_EVENT) {
-        if (g_fg_process != INVALID_HANDLE_VALUE) {
+        DWORD pid = g_fg_pid;
+        if (pid != 0) {
             /* Kill only the foreground child, keep the shell alive */
-            GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT,
-                                     GetProcessId(g_fg_process));
+            if (!GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid)) {
+                shell_perror("CTRL+C");
+            }
             return TRUE;  /* handled */
         }
         /* No foreground process — just print a newline, re-show prompt */
@@ -56,7 +59,7 @@ static void print_banner(void)
         "\n"
         " +==========================================+\n"
         " |          myShell -- Tiny Windows Shell   |\n"
-        " |    Type 'help' to see all commands      |\n"
+        " |    Type 'help' to see all commands       |\n"
         " +==========================================+\n"
         "\n"
     );

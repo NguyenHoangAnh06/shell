@@ -2,100 +2,152 @@
 #include "process_list.h"
 #include "shell_utils.h"
 
-/* ─────────────────────────────────────────────────────── */
-/* Build a single flat command-line string from argv[]     */
-static void build_cmdline(ParsedCmd *cmd, char *out, int outsize)
+static int append_char(char *out, int outsize, int *pos, char ch)
 {
-    int i, pos = 0;
-    for (i = 0; i < cmd->argc; i++) {
-        int need_quotes;
-        int len;
-        need_quotes = strchr(cmd->argv[i], ' ') != NULL;
-        if (i > 0 && pos < outsize - 1) out[pos++] = ' ';
-        if (need_quotes && pos < outsize - 1) out[pos++] = '"';
-        len = (int)strlen(cmd->argv[i]);
-        if (pos + len < outsize - 1) {
-            memcpy(out + pos, cmd->argv[i], len);
-            pos += len;
-        }
-        if (need_quotes && pos < outsize - 1) out[pos++] = '"';
-    }
-    out[pos] = '\0';
+    if (*pos >= outsize - 1) return -1;
+    out[(*pos)++] = ch;
+    out[*pos] = '\0';
+    return 0;
 }
 
-/* ─────────────────────────────────────────────────────── */
-/* Returns 1 if the filename ends with .bat (case-insensitive) */
+/*
+ * Quote one argv element using the documented Windows argv parsing rules.
+ * This keeps spaces, quotes, and trailing backslashes intact for child
+ * processes using the usual CommandLineToArgv-style parser.
+ */
+static int append_arg(char *out, int outsize, int *pos, const char *arg)
+{
+    int need_quotes = (*arg == '\0') || strpbrk(arg, " \t\n\v\"") != NULL;
+    const char *p;
+    int backslashes = 0;
+
+    if (!need_quotes) {
+        while (*arg) {
+            if (append_char(out, outsize, pos, *arg++) < 0) return -1;
+        }
+        return 0;
+    }
+
+    if (append_char(out, outsize, pos, '"') < 0) return -1;
+
+    for (p = arg; *p; p++) {
+        if (*p == '\\') {
+            backslashes++;
+            continue;
+        }
+
+        if (*p == '"') {
+            while (backslashes-- > 0) {
+                if (append_char(out, outsize, pos, '\\') < 0) return -1;
+                if (append_char(out, outsize, pos, '\\') < 0) return -1;
+            }
+            if (append_char(out, outsize, pos, '\\') < 0) return -1;
+            if (append_char(out, outsize, pos, '"') < 0) return -1;
+            backslashes = 0;
+            continue;
+        }
+
+        while (backslashes-- > 0) {
+            if (append_char(out, outsize, pos, '\\') < 0) return -1;
+        }
+        if (append_char(out, outsize, pos, *p) < 0) return -1;
+    }
+
+    while (backslashes-- > 0) {
+        if (append_char(out, outsize, pos, '\\') < 0) return -1;
+        if (append_char(out, outsize, pos, '\\') < 0) return -1;
+    }
+
+    return append_char(out, outsize, pos, '"');
+}
+
+static int build_cmdline(ParsedCmd *cmd, char *out, int outsize)
+{
+    int i, pos = 0;
+    out[0] = '\0';
+
+    for (i = 0; i < cmd->argc; i++) {
+        if (i > 0 && append_char(out, outsize, &pos, ' ') < 0) return -1;
+        if (append_arg(out, outsize, &pos, cmd->argv[i]) < 0) return -1;
+    }
+
+    return 0;
+}
+
 static int is_batch(const char *name)
 {
     int len = (int)strlen(name);
     if (len < 4) return 0;
-    return _stricmp(name + len - 4, ".bat") == 0;
+    return _stricmp(name + len - 4, ".bat") == 0 ||
+           _stricmp(name + len - 4, ".cmd") == 0;
 }
 
-/* ─────────────────────────────────────────────────────── */
+static void wait_foreground(PROCESS_INFORMATION *pi)
+{
+    g_fg_process = pi->hProcess;
+    g_fg_pid = pi->dwProcessId;
+    WaitForSingleObject(pi->hProcess, INFINITE);
+    g_fg_pid = 0;
+    g_fg_process = INVALID_HANDLE_VALUE;
+}
+
 void run_process(ParsedCmd *cmd)
 {
     char cmdline[MAX_CMD_LEN * 2];
     char final_cmdline[MAX_CMD_LEN * 2 + 32];
+    STARTUPINFOA        si;
+    PROCESS_INFORMATION pi;
+    BOOL ok;
 
-    build_cmdline(cmd, cmdline, sizeof(cmdline));
+    if (build_cmdline(cmd, cmdline, sizeof(cmdline)) < 0) {
+        fprintf(stderr, "%s: command line too long\n", SHELL_NAME);
+        return;
+    }
 
-    /* Prepend "cmd /c" for batch files */
     if (is_batch(cmd->argv[0])) {
-        snprintf(final_cmdline, sizeof(final_cmdline), "cmd /c %s", cmdline);
+        if (snprintf(final_cmdline, sizeof(final_cmdline), "cmd /c %s", cmdline) >=
+            (int)sizeof(final_cmdline)) {
+            fprintf(stderr, "%s: command line too long\n", SHELL_NAME);
+            return;
+        }
     } else {
         strncpy(final_cmdline, cmdline, sizeof(final_cmdline) - 1);
         final_cmdline[sizeof(final_cmdline) - 1] = '\0';
     }
 
-    STARTUPINFOA        si;
-    PROCESS_INFORMATION pi;
-    BOOL ok;
     ZeroMemory(&si, sizeof(si));
     ZeroMemory(&pi, sizeof(pi));
     si.cb = sizeof(si);
 
-    /*
-     * CREATE_NEW_PROCESS_GROUP is critical for correct CTRL+C handling:
-     *   It places the child in a new console process group so that when
-     *   the user presses CTRL+C, our SetConsoleCtrlHandler in main.c can
-     *   intercept the event and forward CTRL_BREAK_EVENT exclusively to
-     *   the child's group — without the signal also killing the shell.
-     *
-     *   Note: CTRL_BREAK_EVENT (not CTRL_C_EVENT) must be used when
-     *   targeting a process group created with CREATE_NEW_PROCESS_GROUP,
-     *   because CTRL_C_EVENT is blocked for such groups by Windows.
-     */
     ok = CreateProcessA(
-        NULL,           /* Application name: use cmdline */
-        final_cmdline,  /* Command line */
-        NULL,           /* Process security attrs */
-        NULL,           /* Thread security attrs */
-        TRUE,           /* Inherit handles */
-        CREATE_NEW_PROCESS_GROUP, /* Creation flags — see note above */
-        NULL,           /* Environment (inherit) */
-        NULL,           /* Current directory (inherit) */
+        NULL,
+        final_cmdline,
+        NULL,
+        NULL,
+        TRUE,
+        CREATE_NEW_PROCESS_GROUP,
+        NULL,
+        NULL,
         &si,
         &pi
     );
 
     if (!ok) {
-        shell_perror(cmd->argv[0]);  /* e.g. "myShell: notepad: The system cannot find..." */
+        shell_perror(cmd->argv[0]);
         return;
     }
 
     if (!cmd->is_background) {
-        /* ── Foreground: wait for child ── */
-        g_fg_process = pi.hProcess;
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        g_fg_process = INVALID_HANDLE_VALUE;
+        wait_foreground(&pi);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
-    } else {
-        /* ── Background: register in list ── */
-        int i;
-        CloseHandle(pi.hThread);  /* Thread handle not tracked; close immediately */
+        return;
+    }
 
+    CloseHandle(pi.hThread);
+
+    {
+        int i;
         for (i = 0; i < MAX_BG_PROCS; i++) {
             if (!bg_procs[i].active) {
                 bg_procs[i].pid      = pi.dwProcessId;
@@ -109,13 +161,10 @@ void run_process(ParsedCmd *cmd)
                 return;
             }
         }
-        /* List full — fall back to foreground */
-        fprintf(stderr, "%s: background list full (%d slots), running in foreground\n",
-                SHELL_NAME, MAX_BG_PROCS);
-        g_fg_process = pi.hProcess;
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        g_fg_process = INVALID_HANDLE_VALUE;
-        CloseHandle(pi.hProcess);
-        /* hThread already closed above */
     }
+
+    fprintf(stderr, "%s: background list full (%d slots), refusing background process\n",
+            SHELL_NAME, MAX_BG_PROCS);
+    TerminateProcess(pi.hProcess, 1);
+    CloseHandle(pi.hProcess);
 }

@@ -8,7 +8,7 @@
  *   Executes the command described by 'cmd'.
  *   - Foreground: waits for child to exit.
  *   - Background: registers child in bg_procs[], returns immediately.
- *   Automatically prepends "cmd /c" for .bat files.
+ *   Automatically prepends "cmd /c" for .bat/.cmd files.
  */
 void run_process(ParsedCmd *cmd);
 
