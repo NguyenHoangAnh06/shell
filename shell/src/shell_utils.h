@@ -14,4 +14,8 @@
  */
 void shell_perror(const char *context);
 
+wchar_t *utf8_to_wide(const char *text);
+char *wide_to_utf8(const wchar_t *text);
+void shell_print_wide(FILE *stream, const wchar_t *text);
+
 #endif /* SHELL_UTILS_H */

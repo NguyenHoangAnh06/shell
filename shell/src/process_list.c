@@ -109,8 +109,11 @@ static int toggle_process_threads(DWORD pid, int suspend)
 {
     HANDLE snap;
     THREADENTRY32 te;
-    int found = 0;
-    int failed = 0;
+    DWORD *thread_ids = NULL;
+    size_t count = 0;
+    size_t capacity = 0;
+    size_t changed = 0;
+    int result = -1;
 
     snap = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
     if (snap == INVALID_HANDLE_VALUE) return -1;
@@ -119,25 +122,62 @@ static int toggle_process_threads(DWORD pid, int suspend)
 
     if (Thread32First(snap, &te)) {
         do {
-            HANDLE ht;
-            DWORD rc;
             if (te.th32OwnerProcessID != pid) continue;
-            ht = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te.th32ThreadID);
-            if (!ht) {
-                failed = 1;
-                continue;
+            if (count == capacity) {
+                size_t new_capacity = capacity ? capacity * 2 : 16;
+                DWORD *new_ids = (DWORD *)realloc(
+                    thread_ids, new_capacity * sizeof(DWORD));
+                if (!new_ids) {
+                    CloseHandle(snap);
+                    free(thread_ids);
+                    return -1;
+                }
+                thread_ids = new_ids;
+                capacity = new_capacity;
             }
-            if (suspend)
-                rc = SuspendThread(ht);
-            else
-                rc = ResumeThread(ht);
-            if (rc == (DWORD)-1) failed = 1;
-            CloseHandle(ht);
-            found = 1;
+            thread_ids[count++] = te.th32ThreadID;
         } while (Thread32Next(snap, &te));
     }
     CloseHandle(snap);
-    return (found && !failed) ? 0 : -1;
+
+    if (count == 0) {
+        free(thread_ids);
+        return -1;
+    }
+
+    for (changed = 0; changed < count; changed++) {
+        HANDLE ht = OpenThread(THREAD_SUSPEND_RESUME, FALSE,
+                               thread_ids[changed]);
+        DWORD rc;
+        if (!ht) break;
+        rc = suspend ? SuspendThread(ht) : ResumeThread(ht);
+        CloseHandle(ht);
+        if (rc == (DWORD)-1) break;
+    }
+
+    if (changed == count) {
+        result = 0;
+    } else {
+        /*
+         * Roll back threads already changed so the process and our status
+         * table cannot disagree after a partial failure.
+         */
+        while (changed > 0) {
+            HANDLE ht;
+            changed--;
+            ht = OpenThread(THREAD_SUSPEND_RESUME, FALSE,
+                            thread_ids[changed]);
+            if (!ht) continue;
+            if (suspend)
+                ResumeThread(ht);
+            else
+                SuspendThread(ht);
+            CloseHandle(ht);
+        }
+    }
+
+    free(thread_ids);
+    return result;
 }
 
 int stop_process(DWORD pid)

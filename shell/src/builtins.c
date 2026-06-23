@@ -22,39 +22,6 @@ static int parse_pid_arg(const char *text, DWORD *pid)
     return 0;
 }
 
-static int append_cmd_text(char *out, int outsize, int *pos, const char *text)
-{
-    while (*text) {
-        if (*pos >= outsize - 1) return -1;
-        out[(*pos)++] = *text++;
-    }
-    out[*pos] = '\0';
-    return 0;
-}
-
-static int append_cmd_arg(char *out, int outsize, int *pos, const char *arg)
-{
-    int need_quotes = (*arg == '\0') || strpbrk(arg, " \t&()[]{}^=;!'+,`~") != NULL;
-
-    if (!need_quotes) return append_cmd_text(out, outsize, pos, arg);
-
-    if (append_cmd_text(out, outsize, pos, "\"") < 0) return -1;
-    while (*arg) {
-        if (*arg == '"') {
-            if (append_cmd_text(out, outsize, pos, "\\\"") < 0) return -1;
-        } else if (*arg == '%') {
-            if (append_cmd_text(out, outsize, pos, "%%") < 0) return -1;
-        } else {
-            char tmp[2];
-            tmp[0] = *arg;
-            tmp[1] = '\0';
-            if (append_cmd_text(out, outsize, pos, tmp) < 0) return -1;
-        }
-        arg++;
-    }
-    return append_cmd_text(out, outsize, pos, "\"");
-}
-
 /* ─── Built-in table ────────────────────────────────── */
 /*
  * Architecture note:
@@ -84,6 +51,11 @@ static const char *BUILTIN_NAMES[] = {
     "path", "addpath",
     NULL
 };
+
+const char *const *builtin_names(void)
+{
+    return BUILTIN_NAMES;
+}
 
 int is_builtin(const ParsedCmd *cmd)
 {
@@ -135,6 +107,7 @@ static int cmd_help(ParsedCmd *cmd)
         " +==================================================+\n"
         " | Append & to run a command in background          |\n"
         " | Press CTRL+C to cancel the foreground process    |\n"
+        " | TAB completes; UP/DOWN search prefix history     |\n"
         " +==================================================+\n"
         "\n"
     );
@@ -172,56 +145,107 @@ static int cmd_time_cmd(ParsedCmd *cmd)
  */
 static int cmd_cd(ParsedCmd *cmd)
 {
-    char buf[MAX_PATH];
+    wchar_t *path;
 
     if (cmd->argc < 2) {
-        /* No argument: print current directory */
-        if (GetCurrentDirectoryA(MAX_PATH, buf))
-            printf("%s\n", buf);
-        else
+        DWORD needed = GetCurrentDirectoryW(0, NULL);
+        wchar_t *buf = needed
+            ? (wchar_t *)malloc((size_t)needed * sizeof(wchar_t))
+            : NULL;
+        if (buf && GetCurrentDirectoryW(needed, buf)) {
+            shell_print_wide(stdout, buf);
+            putchar('\n');
+        } else {
             shell_perror("GetCurrentDirectory");
+        }
+        free(buf);
         return 0;
     }
 
-    if (!SetCurrentDirectoryA(cmd->argv[1])) {
-        shell_perror("cd");   /* e.g. "myShell: cd: The system cannot find the path specified. (error 3)" */
+    if (cmd->argc > 2) {
+        fprintf(stderr, "Usage: cd [path]\n");
+        return 0;
     }
+
+    path = utf8_to_wide(cmd->argv[1]);
+    if (!path) {
+        shell_perror("cd: invalid UTF-8");
+        return 0;
+    }
+    if (!SetCurrentDirectoryW(path))
+        shell_perror("cd");
+    free(path);
     return 0;
 }
 
 static int cmd_dir(ParsedCmd *cmd)
 {
-    char cmdline[MAX_CMD_LEN];
-    STARTUPINFOA        si;
-    PROCESS_INFORMATION pi;
-    int i, pos;
+    const char *input = cmd->argc > 1 ? cmd->argv[1] : ".";
+    wchar_t *path;
+    wchar_t *pattern;
+    WIN32_FIND_DATAW data;
+    HANDLE find;
+    DWORD attrs;
+    size_t len;
 
-    snprintf(cmdline, sizeof(cmdline), "cmd /c dir");
-    pos = (int)strlen(cmdline);
-    for (i = 1; i < cmd->argc; i++) {
-        if (append_cmd_text(cmdline, sizeof(cmdline), &pos, " ") < 0 ||
-            append_cmd_arg(cmdline, sizeof(cmdline), &pos, cmd->argv[i]) < 0) {
-            fprintf(stderr, "%s: dir: command line too long\n", SHELL_NAME);
-            return 0;
-        }
+    if (cmd->argc > 2) {
+        fprintf(stderr, "Usage: dir [path]\n");
+        return 0;
     }
 
-    ZeroMemory(&si, sizeof(si));
-    ZeroMemory(&pi, sizeof(pi));
-    si.cb = sizeof(si);
+    path = utf8_to_wide(input);
+    if (!path) {
+        shell_perror("dir: invalid UTF-8");
+        return 0;
+    }
 
-    if (CreateProcessA(NULL, cmdline, NULL, NULL, TRUE,
-                        CREATE_NEW_PROCESS_GROUP, NULL, NULL, &si, &pi)) {
-        g_fg_process = pi.hProcess;
-        g_fg_pid = pi.dwProcessId;
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        g_fg_pid = 0;
-        g_fg_process = INVALID_HANDLE_VALUE;
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-    } else {
+    attrs = GetFileAttributesW(path);
+    len = wcslen(path);
+    pattern = (wchar_t *)malloc((len + 4) * sizeof(wchar_t));
+    if (!pattern) {
+        free(path);
+        fprintf(stderr, "%s: dir: out of memory\n", SHELL_NAME);
+        return 0;
+    }
+    wcscpy(pattern, path);
+
+    if (attrs != INVALID_FILE_ATTRIBUTES &&
+        (attrs & FILE_ATTRIBUTE_DIRECTORY)) {
+        if (len > 0 && path[len - 1] != L'\\' && path[len - 1] != L'/')
+            wcscat(pattern, L"\\");
+        wcscat(pattern, L"*");
+    }
+
+    find = FindFirstFileW(pattern, &data);
+    if (find == INVALID_HANDLE_VALUE) {
         shell_perror("dir");
+        free(pattern);
+        free(path);
+        return 0;
     }
+
+    printf(" Directory of ");
+    shell_print_wide(stdout, path);
+    putchar('\n');
+
+    do {
+        ULARGE_INTEGER size;
+        size.HighPart = data.nFileSizeHigh;
+        size.LowPart = data.nFileSizeLow;
+        if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            printf("%16s  ", "<DIR>");
+        else
+            printf("%16llu  ", (unsigned long long)size.QuadPart);
+        shell_print_wide(stdout, data.cFileName);
+        putchar('\n');
+    } while (FindNextFileW(find, &data));
+
+    if (GetLastError() != ERROR_NO_MORE_FILES)
+        shell_perror("dir");
+
+    FindClose(find);
+    free(pattern);
+    free(path);
     return 0;
 }
 
@@ -284,47 +308,108 @@ static int cmd_resume(ParsedCmd *cmd)
 
 static int cmd_path(ParsedCmd *cmd)
 {
-    char *p;
-    char buf[32768];
-    char *tok;
+    DWORD needed;
+    wchar_t *buf;
+    wchar_t *cursor;
     (void)cmd;
 
-    p = getenv("PATH");
-    if (!p) { printf("PATH not set\n"); return 0; }
-
-    strncpy(buf, p, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
+    SetLastError(ERROR_SUCCESS);
+    needed = GetEnvironmentVariableW(L"PATH", NULL, 0);
+    if (needed == 0) {
+        DWORD err = GetLastError();
+        if (err == ERROR_ENVVAR_NOT_FOUND || err == ERROR_SUCCESS)
+            printf("PATH not set\n");
+        else
+            shell_perror("path");
+        return 0;
+    }
+    buf = (wchar_t *)malloc((size_t)needed * sizeof(wchar_t));
+    if (!buf) {
+        fprintf(stderr, "%s: path: out of memory\n", SHELL_NAME);
+        return 0;
+    }
+    if (!GetEnvironmentVariableW(L"PATH", buf, needed)) {
+        shell_perror("path");
+        free(buf);
+        return 0;
+    }
 
     printf("PATH (current session):\n");
-    tok = strtok(buf, ";");
-    while (tok) {
-        printf("  %s\n", tok);
-        tok = strtok(NULL, ";");
+    cursor = buf;
+    while (*cursor) {
+        wchar_t *end = wcschr(cursor, L';');
+        if (end) *end = L'\0';
+        printf("  ");
+        shell_print_wide(stdout, cursor);
+        putchar('\n');
+        if (!end) break;
+        cursor = end + 1;
     }
     printf("  [Note: changes exist only for this session]\n");
+    free(buf);
     return 0;
 }
 
 static int cmd_addpath(ParsedCmd *cmd)
 {
-    char *cur;
-    char newpath[32768];
+    DWORD needed;
+    wchar_t *dir;
+    wchar_t *newpath;
+    size_t cur_len;
+    size_t dir_len;
 
-    if (cmd->argc < 2) { fprintf(stderr, "Usage: addpath <directory>\n"); return 0; }
+    if (cmd->argc != 2) {
+        fprintf(stderr, "Usage: addpath <directory>\n");
+        return 0;
+    }
 
-    cur = getenv("PATH");
-    if (cur)
-        snprintf(newpath, sizeof(newpath), "%s;%s", cur, cmd->argv[1]);
-    else
-        strncpy(newpath, cmd->argv[1], sizeof(newpath) - 1);
-    newpath[sizeof(newpath) - 1] = '\0';
+    dir = utf8_to_wide(cmd->argv[1]);
+    if (!dir) {
+        shell_perror("addpath: invalid UTF-8");
+        return 0;
+    }
 
-    if (!SetEnvironmentVariableA("PATH", newpath)) {
+    SetLastError(ERROR_SUCCESS);
+    needed = GetEnvironmentVariableW(L"PATH", NULL, 0);
+    if (needed == 0 &&
+        GetLastError() != ERROR_SUCCESS &&
+        GetLastError() != ERROR_ENVVAR_NOT_FOUND) {
         shell_perror("addpath");
+        free(dir);
+        return 0;
+    }
+    cur_len = needed ? (size_t)needed - 1 : 0;
+    dir_len = wcslen(dir);
+    newpath = (wchar_t *)malloc(
+        (cur_len + (cur_len ? 1 : 0) + dir_len + 1) * sizeof(wchar_t));
+    if (!newpath) {
+        free(dir);
+        fprintf(stderr, "%s: addpath: out of memory\n", SHELL_NAME);
+        return 0;
+    }
+
+    newpath[0] = L'\0';
+    if (needed) {
+        if (!GetEnvironmentVariableW(L"PATH", newpath, needed)) {
+            shell_perror("addpath");
+            free(newpath);
+            free(dir);
+            return 0;
+        }
+        wcscat(newpath, L";");
+    }
+    wcscat(newpath, dir);
+
+    if (!SetEnvironmentVariableW(L"PATH", newpath)) {
+        shell_perror("addpath");
+        free(newpath);
+        free(dir);
         return 0;
     }
     printf("PATH updated: '%s' added (this session only, not saved to Registry).\n",
            cmd->argv[1]);
+    free(newpath);
+    free(dir);
     return 0;
 }
 

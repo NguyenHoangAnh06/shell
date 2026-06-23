@@ -1,161 +1,147 @@
 # myShell
 
-A tiny interactive shell for Windows, written in C99 using the Win32 API.
+A small interactive Windows shell written in C99 with the Win32 API.
 
 ## Features
 
-| Feature | Details |
-|---|---|
-| Foreground execution | Shell waits for the child process to finish |
-| Background execution | Append `&` — shell continues immediately |
-| Process management | `list`, `kill`, `stop`, `resume` for background processes |
-| CTRL+C handling | Handled via `SetConsoleCtrlHandler` + `GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT)` sent to the child's process group only — shell stays alive |
-| Batch file support | `.bat` files are handled by prepending `cmd /c` to the command line |
-| Built-in commands | `exit`, `help`, `date`, `time`, `cd`, `dir`, `path`, `addpath` |
-| Error reporting | All Win32 errors displayed as human-readable messages via `FormatMessageA` |
+- Foreground and background process execution.
+- Background process management with `list`, `kill`, `stop`, and `resume`.
+- Built-ins: `exit`, `help`, `date`, `time`, `cd`, `dir`, `path`, `addpath`.
+- UTF-8 console input/output and UTF-16 Win32 filesystem/process APIs.
+- Native `dir` implementation; arguments are not passed through `cmd.exe`.
+- `.bat`/`.cmd` support through `cmd.exe`, with dangerous CMD
+  metacharacters rejected in script arguments.
+- Human-readable Win32 errors.
+- Overlong input lines are discarded instead of being executed as a second
+  command.
+- Interactive command suggestions, `Tab` completion, and prefix-filtered
+  command history with the Up/Down arrow keys.
 
 ## Requirements
 
-- **MinGW-w64** (`gcc` on PATH) — <https://www.mingw-w64.org/>
-- Windows 7 or later
+- Windows 7 or later.
+- MinGW-w64 GCC.
+- `mingw32-make` for the Makefile targets, or GCC for direct compilation.
 
 ## Build
 
-```sh
-cd C:\Users\ADMIN\Documents\shell
-
-# Option 1 — compile directly
-gcc -Wall -O2 -std=c99 -D_WIN32_WINNT=0x0600 -Isrc -o myShell.exe ^
-    src/main.c src/globals.c src/parser.c src/process.c ^
-    src/process_list.c src/builtins.c src/shell_utils.c -lkernel32
-
-# Option 2 — via make
+```bat
 mingw32-make
+```
+
+Direct compilation:
+
+```bat
+gcc -Wall -Wextra -O2 -std=c99 -D_WIN32_WINNT=0x0600 -Isrc ^
+  -o myShell.exe src/main.c src/globals.c src/parser.c src/process.c ^
+  src/process_list.c src/builtins.c src/line_editor.c ^
+  src/shell_utils.c -lkernel32 -luser32
 ```
 
 ## Usage
 
-```
-myShell.exe
-```
-
-### Built-in commands
-
-```
-help                 Show help screen
-exit                 Exit the shell (terminates all background processes)
-date                 Print current date  (YYYY-MM-DD)
-time                 Print current time  (HH:MM:SS)
-cd  [path]           Change working directory (built-in; no arg prints CWD)
-dir [path]           List directory contents (uses cmd /c dir internally)
-list                 List background processes (PID, status, command)
-kill  <pid>          Terminate a background process
-stop  <pid>          Suspend a background process
-resume <pid>         Resume a suspended background process
-path                 Show PATH variable (one entry per line)
-addpath <dir>        Append <dir> to PATH
+```text
+help
+cd "C:\path with spaces"
+dir .
+notepad &
+list
+stop <pid>
+resume <pid>
+kill <pid>
+path
+addpath "C:\new tools"
+test.bat hello
+exit
 ```
 
-> **Note on `addpath`**: Changes are local to the current shell session only.
-> They are **not** written to the Windows Registry and will be lost when the
-> shell exits. Child processes launched after `addpath` inherit the updated
-> PATH because they share the shell's environment block.
+`addpath` changes only the current shell process. Child processes started
+afterward inherit the updated `PATH`; the Windows Registry is not modified.
 
-### Background processes
+Built-ins cannot run in the background.
 
-```
-notepad &            # start in background → prints [PID] notepad &
-list                 # shows PID, status, command
-stop 1234            # suspend all threads of PID 1234
-resume 1234          # resume
-kill 1234            # terminate
-```
+## Interactive editing
 
-### CTRL+C
+- Type a unique command prefix such as `ki` to see `kill` as a dim suggestion.
+- Press `Tab` to accept the suggestion.
+- Press Right Arrow at the end of the line to accept one suggested character.
+- Type a prefix and press Up Arrow to search older matching commands.
+- Press Down Arrow to move toward newer matching commands and eventually
+  restore the prefix originally typed.
+- Left/Right, Home, End, Backspace, and Delete edit the current line.
 
-Pressing CTRL+C while a foreground process is running sends
-`CTRL_BREAK_EVENT` to the foreground child's **process group** only.
-The shell itself is not affected and returns to the prompt.
+History is kept for the current shell session only.
 
-### Batch files
+## Tests
 
-Files ending in `.bat` are automatically handled via `cmd /c`, for example:
+Build `myShell.exe`, then run:
 
-```
-myShell> test.bat
+```bat
+test.bat
 ```
 
-### Running the test suite
+The batch file runs the visible, sequential demonstration suite. For strict
+regression checks, run:
 
-```sh
-# Pipe the test script into myShell
-.\myShell.exe < test.bat
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tests\regression.ps1
 ```
 
----
+If `mingw32-make` is installed:
 
-## Project Structure
-
+```bat
+mingw32-make test
 ```
+
+The regression suite checks repeated `addpath`, Unicode paths, native
+directory listing, normal and rejected batch arguments, and recovery after an
+overlong input line.
+
+To test foreground interruption:
+
+```powershell
+python tests\ctrl_c_test.py
+```
+
+## Design notes and limitations
+
+- `CTRL+C` forcibly terminates the current foreground process with exit code
+  130 while keeping the shell alive. This is predictable for programs such as
+  Windows `ping`, but the child does not get an opportunity for graceful
+  cleanup.
+- `stop`/`resume` enumerate and suspend/resume individual threads. Partial
+  failures are rolled back, but suspending arbitrary threads can still
+  deadlock a target that holds a lock, and threads created after the snapshot
+  can be missed.
+- Batch scripts are interpreted by `cmd.exe`. Because an arbitrary script can
+  unsafely expand `%1`, arguments containing CMD metacharacters are rejected
+  instead of being passed through.
+- The shell does not implement its own pipelines or redirection. Operators
+  such as `|`, `>`, and `<` are ordinary argument characters for external
+  programs.
+- Input is limited to 1023 UTF-8 bytes and 63 arguments.
+- Completion currently covers built-ins and a small set of common external
+  commands; it does not yet complete filenames or arbitrary executables from
+  `PATH`.
+
+## Project structure
+
+```text
 shell/
-├── Makefile
-├── README.md
-├── test.bat              Regression / demonstration test suite
-└── src/
-    ├── shell.h           Shared types and constants
-    ├── globals.c         Single definition of all global variables
-    ├── shell_utils.h/.c  Centralised Win32 error reporter (shell_perror)
-    ├── parser.h/.c       Command-line tokeniser (quotes, & detection)
-    ├── process.h/.c      CreateProcess wrapper (fg/bg + .bat handling)
-    ├── process_list.h/.c Background process registry (list/kill/stop/resume)
-    ├── builtins.h/.c     Built-in command handlers (3 sections)
-    └── main.c            REPL loop, CTRL+C handler
+|-- Makefile
+|-- README.md
+|-- test.bat
+|-- tests/
+|   |-- echo_args.bat
+|   |-- regression_input.txt
+|   `-- regression.ps1
+`-- src/
+    |-- main.c
+    |-- parser.c
+    |-- process.c
+    |-- process_list.c
+    |-- builtins.c
+    |-- line_editor.c
+    |-- shell_utils.c
+    `-- *.h
 ```
-
----
-
-## Process Status Definitions
-
-| Status | Meaning | Policy |
-|---|---|---|
-| `Running` | Process is alive and not suspended | Active slot in `bg_procs` |
-| `Stopped` | All threads suspended by `stop <pid>` | Active slot; use `resume` to continue |
-| `Done` | `GetExitCodeProcess` returned a value other than `STILL_ACTIVE` | **Slot is freed automatically** at the next REPL cycle via `reap_processes()`; handle is closed immediately |
-
-Completed processes are automatically removed at the start of every prompt cycle — you do not need to `kill` them.
-
----
-
-## Known Limitations
-
-### CTRL+C / signal routing
-The current implementation sends `CTRL_BREAK_EVENT` (not `CTRL_C_EVENT`) to the
-foreground child's process group. This is intentional: processes created with
-`CREATE_NEW_PROCESS_GROUP` have `CTRL_C_EVENT` blocked by Windows, so
-`CTRL_BREAK_EVENT` is the correct mechanism for sending an interrupt. Well-behaved
-programs handle `CTRL_BREAK_EVENT` and clean up; programs that ignore it may need
-to be killed via `kill <pid>` instead.
-
-### stop / resume — potential deadlock risk
-`stop` and `resume` are implemented by iterating a `CreateToolhelp32Snapshot`
-and calling `SuspendThread` / `ResumeThread` on every thread of the target process.
-This approach is acceptable at the academic level but has two known risks in production:
-
-1. **Deadlock**: If a thread is suspended while holding the heap lock or a critical
-   section, other threads attempting to allocate memory will deadlock indefinitely.
-2. **Missed threads**: If the target process spawns new threads *after* the snapshot
-   is taken, those threads will not be suspended and the process may continue running.
-
-These are inherent limitations of the `SuspendThread`-based approach on Windows
-(there is no `SIGSTOP` equivalent). A production shell would use Job Objects or
-a dedicated debugging API for more reliable process control.
-
-### Architecture note — command dispatcher
-The dispatch logic (built-in vs. external, foreground vs. background) is currently
-split between `main.c` and `builtins.c`. In a larger project this should be
-consolidated into a single `dispatch()` function with a command-table struct
-(name + function pointer) to make adding new commands trivial.
-
-### addpath scope
-PATH changes via `addpath` only affect the current shell session. They are not
-persisted to the Windows Registry (`HKCU\Environment` or `HKLM\SYSTEM\...`).
