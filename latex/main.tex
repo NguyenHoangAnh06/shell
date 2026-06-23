@@ -121,13 +121,18 @@
 }
 
 % -------------------- Thong tin de trong --------------------
-\newcommand{\TenTruong}{\dotfill}
-\newcommand{\TenKhoa}{\dotfill}
+\newcommand{\TenTruong}{ĐẠI HỌC BÁCH KHOA HÀ NỘI}
+\newcommand{\TenKhoa}{TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG}
 \newcommand{\TenMonHoc}{Hệ điều hành}
-\newcommand{\TenGiangVien}{\dotfill}
-\newcommand{\TenNhom}{\dotfill}
-\newcommand{\TenLop}{\dotfill}
-\newcommand{\HocKy}{\dotfill}
+\newcommand{\TenGiangVien}{Phạm Đăng Hải}
+\newcommand{\TenNhom}{%
+Nguyễn Hoàng Anh - 202416118\par
+Nguyễn Quang Anh - 202416111\par
+Nguyễn Chính Minh - 202416293%
+}
+\newcommand{\TenLop}{168463}
+\newcommand{\HocKy}{20252}
+\newcommand{\ThangNamBaoCao}{\makebox[2.8cm]{23/06/2026}}
 
 \begin{document}
 
@@ -135,96 +140,91 @@
 %  Trang bia
 % ============================================================
 \begin{titlepage}
-\begin{center}
-    {\Large \textbf{\TenTruong}}\\[0.3cm]
-    {\large \textbf{\TenKhoa}}\\[1.5cm]
+	\begin{center}
+		\vspace*{0.8cm}
+		{\Large \textbf{\MakeUppercase{\TenTruong}}}\\[0.18cm]
+		{\Large \textbf{\MakeUppercase{\TenKhoa}}}\\[-0.02cm]
+		{\textbf{-----\&\&-----}}\\[0.35cm]
 
-    {\Large \textbf{BÁO CÁO PROJECT}}\\[0.4cm]
-    {\Large \textbf{MÔN HỌC: \TenMonHoc}}\\[1.2cm]
+		\includegraphics[height=5.4cm]{figures/logo.png}\\[1.1cm]
 
-    \rule{0.85\textwidth}{0.8pt}\\[0.5cm]
-    {\Huge \textbf{PROJECT 1: TINY SHELL}}\\[0.25cm]
-    {\Large \textbf{Thiết kế và cài đặt shell đơn giản trên Windows}}\\[0.5cm]
-    \rule{0.85\textwidth}{0.8pt}\\[1.5cm]
-\end{center}
+		{\LARGE \textbf{BÁO CÁO}}\\[0.3cm]
+		{\LARGE \textbf{PROJECT: TINY SHELL}}\\[0.3cm]
+		{\Large \textbf{THIẾT KẾ VÀ CÀI ĐẶT SHELL ĐƠN GIẢN TRÊN WINDOWS}}\\[1.1cm]
+	\end{center}
 
-\begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.4}
-\begin{tabular}{>{\bfseries}p{5cm}p{8cm}}
-Giảng viên hướng dẫn: & \TenGiangVien \\
-Nhóm thực hiện:       & \TenNhom \\
-Lớp:                  & \TenLop \\
-Học kỳ:               & \HocKy \\
-\end{tabular}
-\end{table}
+	\begin{center}
+		\renewcommand{\arraystretch}{1.15}
+		\large
+		\begin{tabular}{>{\bfseries}p{4.1cm}@{\hspace{0.25cm}:\hspace{0.25cm}}p{7.2cm}}
+			GVHD           & \textbf{\TenGiangVien} \\
+			Nhóm thực hiện & \textbf{\TenNhom}      \\
+			Môn học        & \textbf{\TenMonHoc}    \\
+			Mã lớp            & \textbf{\TenLop}       \\
+			Học kỳ         & \textbf{\HocKy}        \\
+		\end{tabular}
+	\end{center}
 
-\vfill
-\begin{center}
-    {\large Hà Nội, tháng \dotfill\ năm \dotfill}
-\end{center}
+	\vfill
+	\begin{center}
+		{\large \textbf{Hà Nội, \ThangNamBaoCao}}
+	\end{center}
 \end{titlepage}
-
-% ============================================================
-%  Bang phan cong
-% ============================================================
-\chapter*{Bảng phân công công việc}
-\addcontentsline{toc}{chapter}{Bảng phân công công việc}
-
-\begin{longtable}{|>{\centering\arraybackslash}p{0.7cm}|p{3.2cm}|p{6.2cm}|>{\centering\arraybackslash}p{2.0cm}|>{\centering\arraybackslash}p{2.0cm}|}
-\hline
-\textbf{STT} & \textbf{Họ và tên} & \textbf{Công việc chính} & \textbf{Mức độ hoàn thành} & \textbf{Ghi chú} \\
-\hline
-1 & & Phân tích yêu cầu, thiết kế kiến trúc shell, viết báo cáo & & \\
-\hline
-2 & & Cài đặt parser, foreground/background process, kiểm thử & & \\
-\hline
-3 & & Cài đặt built-in commands, quản lý tiến trình, PATH & & \\
-\hline
-4 & & Chạy thử nghiệm, chụp kết quả, hoàn thiện slide/báo cáo & & \\
-\hline
-\end{longtable}
-
-\noindent\textbf{Đánh giá chung của nhóm:} \dotfill\\[0.5cm]
-\dotfill\\[0.5cm]
-\dotfill
 
 \newpage
 \tableofcontents
 \newpage
 
 % ============================================================
+%  Loi mo dau
+% ============================================================
+\chapter*{Lời mở đầu}
+\addcontentsline{toc}{chapter}{Lời mở đầu}
+
+Trong học phần Hệ điều hành, việc tìm hiểu cơ chế hoạt động của shell giúp sinh viên nắm rõ hơn cách hệ điều hành tiếp nhận lệnh, tạo tiến trình, quản lý tiến trình và xử lý các tình huống tương tác với người dùng. Đề tài \textbf{Tiny shell} được thực hiện nhằm xây dựng một shell đơn giản trên Windows, qua đó vận dụng các kiến thức về tiến trình, lệnh nội trú, lệnh ngoài và Win32 API vào một chương trình hoàn chỉnh.
+
+Báo cáo này trình bày quá trình phân tích yêu cầu, thiết kế kiến trúc, cài đặt các chức năng chính, kiểm thử chương trình và đánh giá kết quả đạt được. Trong quá trình thực hiện, nhóm đã cố gắng tổ chức mã nguồn rõ ràng, kiểm tra từng chức năng theo yêu cầu và ghi nhận các hạn chế còn tồn tại để có cơ sở cải tiến trong tương lai.
+
+Nhóm xin chân thành cảm ơn giảng viên hướng dẫn \textbf{\TenGiangVien} đã định hướng quá trình thực hiện đề tài.
+
+% ============================================================
+%  Bang phan cong
+% ============================================================
+\section*{Bảng phân công công việc}
+
+\begin{longtable}{|>{\centering\arraybackslash}p{0.9cm}|p{4.0cm}|p{8.6cm}|}
+	\hline
+	\textbf{STT} & \textbf{Họ và tên}     & \textbf{Công việc chính}                                  \\
+	\hline
+	1            & Nguyễn Chính Minh  & Phân tích yêu cầu, thiết kế kiến trúc shell, viết báo cáo \\
+	\hline
+	2            & Nguyễn Hoàng Anh   & Cài đặt parser, foreground/background process, kiểm thử   \\
+	\hline
+	3            & Nguyễn Quang Anh   & Cài đặt built-in commands, quản lý tiến trình, PATH       \\
+	\hline
+\end{longtable}
+
+
+% ============================================================
 \chapter{Giới thiệu đề tài}
 
 \section{Bối cảnh}
 
-Shell là chương trình trung gian cho phép người dùng nhập lệnh, phân tích lệnh và yêu cầu hệ điều hành thực hiện công việc tương ứng. Trong hệ điều hành, shell không chỉ là giao diện nhập lệnh mà còn là môi trường thực hành nhiều khái niệm cốt lõi như tạo tiến trình, đồng bộ tiến trình cha - con, xử lý tín hiệu bàn phím, quản lý biến môi trường và tổ chức các lệnh nội trú.
+Shell là chương trình trung gian cho phép người dùng nhập lệnh, phân tích lệnh và yêu cầu hệ điều hành thực hiện công việc tương ứng. Thông qua việc xây dựng shell, nhóm có thể thực hành các khái niệm quan trọng của môn Hệ điều hành như tạo tiến trình, đồng bộ foreground/background, xử lý tín hiệu bàn phím và quản lý biến môi trường.
 
-Đề tài \textbf{Tiny shell} yêu cầu thiết kế và cài đặt một shell đơn giản trên Windows. Chương trình được đặt tên là \textbf{myShell}, viết bằng ngôn ngữ C theo chuẩn C99 và sử dụng trực tiếp các hàm Win32 API để tạo, theo dõi, dừng, tiếp tục và hủy tiến trình.
+Đề tài \textbf{Tiny shell} yêu cầu thiết kế một shell đơn giản trên Windows, đặt tên là \textbf{myShell}. Chương trình được viết bằng C99 và sử dụng Win32 API để thực thi lệnh ngoài, quản lý tiến trình nền, cài đặt các lệnh nội trú và xử lý lỗi khi người dùng nhập lệnh không hợp lệ.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.88\textwidth]{figures/de_bai.png}
-    \caption{Tóm tắt yêu cầu đề bài Project 1: Tiny shell}
-\end{figure}
-
-\section{Mục tiêu thực hiện}
-
-Báo cáo tập trung trình bày quá trình thiết kế, cài đặt và kiểm thử shell theo các mục tiêu sau:
-
+Các yêu cầu chính của đề tài gồm:
 \begin{itemize}[leftmargin=1.2cm]
-    \item Hiểu cách một shell nhận lệnh, tách tham số và phân loại lệnh.
-    \item Cài đặt cơ chế chạy tiến trình ở hai chế độ: \textbf{foreground} và \textbf{background}.
-    \item Quản lý danh sách tiến trình chạy nền gồm PID, trạng thái và câu lệnh ban đầu.
-    \item Hỗ trợ các thao tác quản lý tiến trình: \texttt{list}, \texttt{kill}, \texttt{stop}, \texttt{resume}.
-    \item Cài đặt các lệnh nội trú: \texttt{exit}, \texttt{help}, \texttt{date}, \texttt{time}, \texttt{cd}, \texttt{dir}, \texttt{path}, \texttt{addpath}.
-    \item Xử lý tổ hợp phím \texttt{CTRL+C} để hủy foreground process mà không làm chết shell.
-    \item Hỗ trợ chạy file batch \texttt{.bat}/\texttt{.cmd} và xây dựng bộ kiểm thử tự động.
+	\item Nhận lệnh, tách tham số và phân biệt lệnh nội trú với lệnh ngoài.
+	\item Hỗ trợ foreground/background process và quản lý tiến trình nền.
+	\item Cài đặt các lệnh cơ bản như \texttt{cd}, \texttt{dir}, \texttt{list}, \texttt{kill}, \texttt{stop}, \texttt{resume}.
+	\item Xử lý \texttt{CTRL+C}, hỗ trợ file \texttt{.bat}/\texttt{.cmd} và xây dựng bộ kiểm thử.
 \end{itemize}
 
 \section{Phạm vi báo cáo}
 
-Báo cáo này không trình bày toàn bộ mã nguồn dòng theo dòng, mà phân tích các thành phần quan trọng nhất của chương trình: kiến trúc module, cấu trúc dữ liệu, luồng xử lý lệnh, cách gọi Win32 API, kết quả kiểm thử và các hạn chế còn tồn tại. Các đoạn mã trích dẫn trong báo cáo là những phần đại diện cho cơ chế chính của hệ thống.
+Báo cáo không trình bày toàn bộ mã nguồn dòng theo dòng, mà tập trung vào kiến trúc module, cấu trúc dữ liệu, luồng xử lý lệnh, cách sử dụng Win32 API, kết quả kiểm thử và các hạn chế còn tồn tại.
 
 % ============================================================
 \chapter{Cơ sở lý thuyết}
@@ -246,18 +246,18 @@ Cách hiển thị này giúp người dùng biết shell đang đứng ở thư
 Trong shell, cần phân biệt hai loại lệnh:
 
 \begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{|p{3.2cm}|X|X|}
-\hline
-\textbf{Loại lệnh} & \textbf{Đặc điểm} & \textbf{Ví dụ trong project} \\
-\hline
-Lệnh nội trú & Chạy trực tiếp trong tiến trình shell. Có thể thay đổi trạng thái nội bộ của shell như thư mục hiện tại hoặc biến môi trường. & \texttt{cd}, \texttt{exit}, \texttt{path}, \texttt{addpath}, \texttt{list} \\
-\hline
-Lệnh ngoài & Shell tạo tiến trình con bằng Win32 API. Tiến trình con có thể chạy foreground hoặc background. & \texttt{notepad}, \texttt{ping}, file \texttt{.bat}/\texttt{.cmd} \\
-\hline
-\end{tabularx}
-\caption{Phân loại lệnh trong myShell}
+	\centering
+	\renewcommand{\arraystretch}{1.25}
+	\begin{tabularx}{\textwidth}{|p{3.2cm}|X|X|}
+		\hline
+		\textbf{Loại lệnh} & \textbf{Đặc điểm}                                                                                                             & \textbf{Ví dụ trong project}                                               \\
+		\hline
+		Lệnh nội trú       & Chạy trực tiếp trong tiến trình shell. Có thể thay đổi trạng thái nội bộ của shell như thư mục hiện tại hoặc biến môi trường. & \texttt{cd}, \texttt{exit}, \texttt{path}, \texttt{addpath}, \texttt{list} \\
+		\hline
+		Lệnh ngoài         & Shell tạo tiến trình con bằng Win32 API. Tiến trình con có thể chạy foreground hoặc background.                               & \texttt{notepad}, \texttt{ping}, file \texttt{.bat}/\texttt{.cmd}          \\
+		\hline
+	\end{tabularx}
+	\caption{Phân loại lệnh trong myShell}
 \end{table}
 
 Lệnh \texttt{cd} là ví dụ điển hình bắt buộc phải là lệnh nội trú. Nếu chạy \texttt{cd} bằng một tiến trình con, thư mục làm việc chỉ thay đổi trong tiến trình con và không ảnh hưởng tới shell cha. Vì vậy chương trình phải gọi \texttt{SetCurrentDirectoryA} ngay trong tiến trình shell.
@@ -269,7 +269,7 @@ Khi chạy lệnh ở chế độ foreground, shell phải chờ tiến trình c
 Khi chạy lệnh ở chế độ background, người dùng thêm ký tự \texttt{\&} ở cuối lệnh. Shell tạo tiến trình con nhưng không chờ tiến trình đó kết thúc. Thay vào đó, shell lưu thông tin tiến trình vào danh sách quản lý để người dùng có thể xem, dừng, tiếp tục hoặc hủy tiến trình sau này.
 
 \begin{noteBox}{Ý nghĩa trong hệ điều hành}
-Foreground/background là phần thể hiện rõ quan hệ giữa shell và tiến trình con. Foreground yêu cầu đồng bộ tiến trình cha - con, còn background yêu cầu shell duy trì bảng tiến trình riêng để theo dõi những tiến trình chưa kết thúc.
+	Foreground/background là phần thể hiện rõ quan hệ giữa shell và tiến trình con. Foreground yêu cầu đồng bộ tiến trình cha - con, còn background yêu cầu shell duy trì bảng tiến trình riêng để theo dõi những tiến trình chưa kết thúc.
 \end{noteBox}
 
 \section{Một số Win32 API được sử dụng}
@@ -277,31 +277,31 @@ Foreground/background là phần thể hiện rõ quan hệ giữa shell và ti�
 Project sử dụng trực tiếp các API của Windows thay vì dùng hàm mức cao. Bảng sau tóm tắt những API quan trọng nhất:
 
 \begin{longtable}{|p{4.2cm}|p{10.3cm}|}
-\hline
-\textbf{API} & \textbf{Vai trò trong chương trình} \\
-\hline
-\texttt{CreateProcessA} & Tạo tiến trình con để chạy lệnh ngoài hoặc file batch. \\
-\hline
-\texttt{WaitForSingleObject} & Chờ foreground process kết thúc. \\
-\hline
-\texttt{TerminateProcess} & Hủy background process theo PID. \\
-\hline
-\texttt{GetExitCodeProcess} & Kiểm tra tiến trình nền đã kết thúc hay chưa. \\
-\hline
-\texttt{CloseHandle} & Đóng handle sau khi không còn sử dụng, tránh rò rỉ tài nguyên. \\
-\hline
-\texttt{SetConsoleCtrlHandler} & Đăng ký hàm xử lý \texttt{CTRL+C}/\texttt{CTRL+BREAK}. \\
-\hline
-\texttt{GenerateConsoleCtrlEvent} & Gửi \texttt{CTRL\_BREAK\_EVENT} tới nhóm tiến trình foreground. \\
-\hline
-\texttt{CreateToolhelp32Snapshot} & Chụp danh sách thread trong hệ thống để phục vụ \texttt{stop}/\texttt{resume}. \\
-\hline
-\texttt{SuspendThread}, \texttt{ResumeThread} & Tạm dừng hoặc tiếp tục từng thread của một background process. \\
-\hline
-\texttt{SetCurrentDirectoryA} & Thay đổi thư mục làm việc của shell. \\
-\hline
-\texttt{SetEnvironmentVariableA} & Cập nhật biến môi trường \texttt{PATH} trong phiên shell hiện tại. \\
-\hline
+	\hline
+	\textbf{API}                                  & \textbf{Vai trò trong chương trình}                                            \\
+	\hline
+	\texttt{CreateProcessA}                       & Tạo tiến trình con để chạy lệnh ngoài hoặc file batch.                         \\
+	\hline
+	\texttt{WaitForSingleObject}                  & Chờ foreground process kết thúc.                                               \\
+	\hline
+	\texttt{TerminateProcess}                     & Hủy background process theo PID.                                               \\
+	\hline
+	\texttt{GetExitCodeProcess}                   & Kiểm tra tiến trình nền đã kết thúc hay chưa.                                  \\
+	\hline
+	\texttt{CloseHandle}                          & Đóng handle sau khi không còn sử dụng, tránh rò rỉ tài nguyên.                 \\
+	\hline
+	\texttt{SetConsoleCtrlHandler}                & Đăng ký hàm xử lý \texttt{CTRL+C}/\texttt{CTRL+BREAK}.                         \\
+	\hline
+	\texttt{GenerateConsoleCtrlEvent}             & Gửi \texttt{CTRL\_BREAK\_EVENT} tới nhóm tiến trình foreground.                \\
+	\hline
+	\texttt{CreateToolhelp32Snapshot}             & Chụp danh sách thread trong hệ thống để phục vụ \texttt{stop}/\texttt{resume}. \\
+	\hline
+	\texttt{SuspendThread}, \texttt{ResumeThread} & Tạm dừng hoặc tiếp tục từng thread của một background process.                 \\
+	\hline
+	\texttt{SetCurrentDirectoryA}                 & Thay đổi thư mục làm việc của shell.                                           \\
+	\hline
+	\texttt{SetEnvironmentVariableA}              & Cập nhật biến môi trường \texttt{PATH} trong phiên shell hiện tại.             \\
+	\hline
 \end{longtable}
 
 % ============================================================
@@ -312,37 +312,37 @@ Project sử dụng trực tiếp các API của Windows thay vì dùng hàm m�
 Từ đề bài và kết quả cài đặt, chương trình cần đáp ứng các nhóm chức năng sau:
 
 \begin{longtable}{|p{1.2cm}|p{5cm}|p{8cm}|}
-\hline
-\textbf{STT} & \textbf{Nhóm yêu cầu} & \textbf{Mô tả} \\
-\hline
-1 & Nhận và phân tích lệnh & Đọc lệnh từ bàn phím, tách tên lệnh và tham số, nhận biết ký tự \texttt{\&} ở cuối lệnh để chạy nền. \\
-\hline
-2 & Thực thi foreground & Tạo tiến trình con và chờ tiến trình kết thúc trước khi in prompt mới. \\
-\hline
-3 & Thực thi background & Tạo tiến trình con, không chờ, lưu PID/trạng thái/câu lệnh vào danh sách quản lý. \\
-\hline
-4 & Quản lý tiến trình nền & Hỗ trợ \texttt{list}, \texttt{kill <pid>}, \texttt{stop <pid>}, \texttt{resume <pid>}. \\
-\hline
-5 & Lệnh nội trú cơ bản & Hỗ trợ \texttt{exit}, \texttt{help}, \texttt{date}, \texttt{time}, \texttt{cd}, \texttt{dir}. \\
-\hline
-6 & Biến môi trường & Hỗ trợ xem \texttt{PATH} và thêm thư mục vào \texttt{PATH} trong phiên hiện tại. \\
-\hline
-7 & Xử lý \texttt{CTRL+C} & Khi foreground process đang chạy, \texttt{CTRL+C} chỉ hủy tiến trình con, shell vẫn tiếp tục sống. \\
-\hline
-8 & Batch file & Cho phép chạy file \texttt{.bat}/\texttt{.cmd} bằng cách chuyển qua \texttt{cmd /c}. \\
-\hline
-9 & Báo lỗi & Khi lệnh sai hoặc API thất bại, in thông báo lỗi dễ hiểu thay vì chỉ in mã lỗi. \\
-\hline
+	\hline
+	\textbf{STT} & \textbf{Nhóm yêu cầu}  & \textbf{Mô tả}                                                                                       \\
+	\hline
+	1            & Nhận và phân tích lệnh & Đọc lệnh từ bàn phím, tách tên lệnh và tham số, nhận biết ký tự \texttt{\&} ở cuối lệnh để chạy nền. \\
+	\hline
+	2            & Thực thi foreground    & Tạo tiến trình con và chờ tiến trình kết thúc trước khi in prompt mới.                               \\
+	\hline
+	3            & Thực thi background    & Tạo tiến trình con, không chờ, lưu PID/trạng thái/câu lệnh vào danh sách quản lý.                    \\
+	\hline
+	4            & Quản lý tiến trình nền & Hỗ trợ \texttt{list}, \texttt{kill <pid>}, \texttt{stop <pid>}, \texttt{resume <pid>}.               \\
+	\hline
+	5            & Lệnh nội trú cơ bản    & Hỗ trợ \texttt{exit}, \texttt{help}, \texttt{date}, \texttt{time}, \texttt{cd}, \texttt{dir}.        \\
+	\hline
+	6            & Biến môi trường        & Hỗ trợ xem \texttt{PATH} và thêm thư mục vào \texttt{PATH} trong phiên hiện tại.                     \\
+	\hline
+	7            & Xử lý \texttt{CTRL+C}  & Khi foreground process đang chạy, \texttt{CTRL+C} chỉ hủy tiến trình con, shell vẫn tiếp tục sống.   \\
+	\hline
+	8            & Batch file             & Cho phép chạy file \texttt{.bat}/\texttt{.cmd} bằng cách chuyển qua \texttt{cmd /c}.                 \\
+	\hline
+	9            & Báo lỗi                & Khi lệnh sai hoặc API thất bại, in thông báo lỗi dễ hiểu thay vì chỉ in mã lỗi.                      \\
+	\hline
 \end{longtable}
 
 \section{Yêu cầu phi chức năng}
 
 \begin{itemize}[leftmargin=1.2cm]
-    \item Mã nguồn được chia module rõ ràng, mỗi file phụ trách một nhóm chức năng.
-    \item Chương trình biên dịch được trên Windows bằng MinGW-w64/GCC.
-    \item Có bộ test dạng \texttt{test.bat} để kiểm tra nhanh các chức năng chính.
-    \item Khi thoát shell, các background process còn sống được dọn dẹp.
-    \item Handle của tiến trình phải được đóng đúng lúc để hạn chế rò rỉ tài nguyên.
+	\item Mã nguồn được chia module rõ ràng, mỗi file phụ trách một nhóm chức năng.
+	\item Chương trình biên dịch được trên Windows bằng MinGW-w64/GCC.
+	\item Có bộ test dạng \texttt{test.bat} để kiểm tra nhanh các chức năng chính.
+	\item Khi thoát shell, các background process còn sống được dọn dẹp.
+	\item Handle của tiến trình phải được đóng đúng lúc để hạn chế rò rỉ tài nguyên.
 \end{itemize}
 
 % ============================================================
@@ -372,25 +372,25 @@ shell/
 \section{Vai trò từng module}
 
 \begin{longtable}{|p{4cm}|p{10.5cm}|}
-\hline
-\textbf{Module} & \textbf{Vai trò} \\
-\hline
-\texttt{shell.h} & Khai báo hằng số, kiểu dữ liệu dùng chung, biến toàn cục dùng để theo dõi foreground/background process. \\
-\hline
-\texttt{globals.c} & Định nghĩa duy nhất các biến toàn cục như \texttt{bg\_procs}, \texttt{bg\_count}, \texttt{g\_fg\_pid}. \\
-\hline
-\texttt{main.c} & Chứa vòng lặp REPL, in prompt, đăng ký handler \texttt{CTRL+C}, gọi parser và điều phối thực thi lệnh. \\
-\hline
-\texttt{parser.c} & Tách dòng lệnh thành \texttt{argv}, xử lý dấu nháy, phát hiện trailing \texttt{\&}. \\
-\hline
-\texttt{process.c} & Xây dựng command line Windows, gọi \texttt{CreateProcessA}, xử lý foreground/background và file batch. \\
-\hline
-\texttt{process\_list.c} & Quản lý danh sách background process, gồm \texttt{list}, \texttt{kill}, \texttt{stop}, \texttt{resume}, \texttt{reap}. \\
-\hline
-\texttt{builtins.c} & Cài đặt các lệnh nội trú của shell và kiểm tra lệnh có phải built-in hay không. \\
-\hline
-\texttt{shell\_utils.c} & Cung cấp hàm báo lỗi thống nhất dựa trên \texttt{FormatMessageA}. \\
-\hline
+	\hline
+	\textbf{Module}          & \textbf{Vai trò}                                                                                                       \\
+	\hline
+	\texttt{shell.h}         & Khai báo hằng số, kiểu dữ liệu dùng chung, biến toàn cục dùng để theo dõi foreground/background process.               \\
+	\hline
+	\texttt{globals.c}       & Định nghĩa duy nhất các biến toàn cục như \texttt{bg\_procs}, \texttt{bg\_count}, \texttt{g\_fg\_pid}.                 \\
+	\hline
+	\texttt{main.c}          & Chứa vòng lặp REPL, in prompt, đăng ký handler \texttt{CTRL+C}, gọi parser và điều phối thực thi lệnh.                 \\
+	\hline
+	\texttt{parser.c}        & Tách dòng lệnh thành \texttt{argv}, xử lý dấu nháy, phát hiện trailing \texttt{\&}.                                    \\
+	\hline
+	\texttt{process.c}       & Xây dựng command line Windows, gọi \texttt{CreateProcessA}, xử lý foreground/background và file batch.                 \\
+	\hline
+	\texttt{process\_list.c} & Quản lý danh sách background process, gồm \texttt{list}, \texttt{kill}, \texttt{stop}, \texttt{resume}, \texttt{reap}. \\
+	\hline
+	\texttt{builtins.c}      & Cài đặt các lệnh nội trú của shell và kiểm tra lệnh có phải built-in hay không.                                        \\
+	\hline
+	\texttt{shell\_utils.c}  & Cung cấp hàm báo lỗi thống nhất dựa trên \texttt{FormatMessageA}.                                                      \\
+	\hline
 \end{longtable}
 
 \section{Luồng xử lý tổng quát}
@@ -447,7 +447,7 @@ typedef struct {
 Chương trình dùng mảng tĩnh \texttt{bg\_procs[MAX\_BG\_PROCS]} với tối đa 64 tiến trình nền. Mỗi phần tử có cờ \texttt{active} để biết slot có đang được dùng hay không. Khi tiến trình kết thúc, hàm \texttt{reap\_processes()} gọi \texttt{GetExitCodeProcess}, đóng handle rồi giải phóng slot.
 
 \begin{noteBox}{Lý do cần reap background process}
-Nếu chỉ lưu tiến trình nền nhưng không kiểm tra tiến trình đã kết thúc, danh sách sẽ bị đầy bởi các tiến trình cũ. Ngoài ra, handle của tiến trình đã kết thúc vẫn chiếm tài nguyên hệ thống nếu không gọi \texttt{CloseHandle}.
+	Nếu chỉ lưu tiến trình nền nhưng không kiểm tra tiến trình đã kết thúc, danh sách sẽ bị đầy bởi các tiến trình cũ. Ngoài ra, handle của tiến trình đã kết thúc vẫn chiếm tài nguyên hệ thống nếu không gọi \texttt{CloseHandle}.
 \end{noteBox}
 
 % ============================================================
@@ -488,12 +488,12 @@ while (1) {
 Parser có nhiệm vụ tách dòng nhập thành các tham số giống \texttt{argv}. Phiên bản cài đặt hỗ trợ:
 
 \begin{itemize}[leftmargin=1.2cm]
-    \item Bỏ qua khoảng trắng thừa ở đầu/cuối.
-    \item Tách token theo khoảng trắng.
-    \item Hỗ trợ token có dấu nháy đơn hoặc nháy kép.
-    \item Hỗ trợ escape ký tự nháy trong chuỗi được quote.
-    \item Phát hiện ký tự \texttt{\&} cuối dòng để đặt \texttt{is\_background = 1}.
-    \item Báo lỗi khi thiếu dấu nháy đóng hoặc quá nhiều tham số.
+	\item Bỏ qua khoảng trắng thừa ở đầu/cuối.
+	\item Tách token theo khoảng trắng.
+	\item Hỗ trợ token có dấu nháy đơn hoặc nháy kép.
+	\item Hỗ trợ escape ký tự nháy trong chuỗi được quote.
+	\item Phát hiện ký tự \texttt{\&} cuối dòng để đặt \texttt{is\_background = 1}.
+	\item Báo lỗi khi thiếu dấu nháy đóng hoặc quá nhiều tham số.
 \end{itemize}
 
 \begin{lstlisting}[language=C,caption={Phát hiện background command ở cuối dòng}]
@@ -697,25 +697,25 @@ static const char *BUILTIN_NAMES[] = {
 Bảng dưới đây tóm tắt các built-in đã cài đặt:
 
 \begin{longtable}{|p{3.2cm}|p{11cm}|}
-\hline
-\textbf{Lệnh} & \textbf{Cơ chế cài đặt} \\
-\hline
-\texttt{exit} & Gọi \texttt{kill\_all\_processes()} để dọn tiến trình nền, in \texttt{Goodbye!}, trả về tín hiệu thoát vòng lặp. \\
-\hline
-\texttt{help} & In bảng hướng dẫn các nhóm lệnh. \\
-\hline
-\texttt{date}, \texttt{time} & Gọi \texttt{GetLocalTime}, định dạng ngày \texttt{YYYY-MM-DD} và giờ \texttt{HH:MM:SS}. \\
-\hline
-\texttt{cd [path]} & Không có tham số thì in thư mục hiện tại; có tham số thì gọi \texttt{SetCurrentDirectoryA}. \\
-\hline
-\texttt{dir [path]} & Tạo process chạy \texttt{cmd /c dir}, cho phép dùng chức năng liệt kê thư mục sẵn có của Windows. \\
-\hline
-\texttt{path} & Đọc biến môi trường \texttt{PATH} bằng \texttt{getenv}, tách theo dấu chấm phẩy và in từng dòng. \\
-\hline
-\texttt{addpath <dir>} & Ghép thư mục mới vào cuối \texttt{PATH} và gọi \texttt{SetEnvironmentVariableA}. \\
-\hline
-\texttt{list}, \texttt{kill}, \texttt{stop}, \texttt{resume} & Gọi các hàm tương ứng trong \texttt{process\_list.c}. \\
-\hline
+	\hline
+	\textbf{Lệnh}                                                & \textbf{Cơ chế cài đặt}                                                                                          \\
+	\hline
+	\texttt{exit}                                                & Gọi \texttt{kill\_all\_processes()} để dọn tiến trình nền, in \texttt{Goodbye!}, trả về tín hiệu thoát vòng lặp. \\
+	\hline
+	\texttt{help}                                                & In bảng hướng dẫn các nhóm lệnh.                                                                                 \\
+	\hline
+	\texttt{date}, \texttt{time}                                 & Gọi \texttt{GetLocalTime}, định dạng ngày \texttt{YYYY-MM-DD} và giờ \texttt{HH:MM:SS}.                          \\
+	\hline
+	\texttt{cd [path]}                                           & Không có tham số thì in thư mục hiện tại; có tham số thì gọi \texttt{SetCurrentDirectoryA}.                      \\
+	\hline
+	\texttt{dir [path]}                                          & Tạo process chạy \texttt{cmd /c dir}, cho phép dùng chức năng liệt kê thư mục sẵn có của Windows.                \\
+	\hline
+	\texttt{path}                                                & Đọc biến môi trường \texttt{PATH} bằng \texttt{getenv}, tách theo dấu chấm phẩy và in từng dòng.                 \\
+	\hline
+	\texttt{addpath <dir>}                                       & Ghép thư mục mới vào cuối \texttt{PATH} và gọi \texttt{SetEnvironmentVariableA}.                                 \\
+	\hline
+	\texttt{list}, \texttt{kill}, \texttt{stop}, \texttt{resume} & Gọi các hàm tương ứng trong \texttt{process\_list.c}.                                                            \\
+	\hline
 \end{longtable}
 
 \section{Báo lỗi thống nhất}
@@ -767,39 +767,39 @@ Trong Makefile, các file nguồn được biên dịch thành object rồi liê
 Bộ kiểm thử \texttt{test.bat} được dùng để kiểm tra tự động những chức năng cơ bản. Ngoài ra, một số chức năng tương tác như \texttt{notepad \&}, \texttt{stop}, \texttt{resume}, \texttt{kill} và \texttt{CTRL+C} được kiểm thử thủ công.
 
 \begin{longtable}{|p{1.2cm}|p{4.2cm}|p{5.4cm}|p{3.5cm}|}
-\hline
-\textbf{STT} & \textbf{Lệnh kiểm thử} & \textbf{Mục tiêu} & \textbf{Kết quả} \\
-\hline
-1 & \texttt{help} & In bảng lệnh hỗ trợ & Đạt \\
-\hline
-2 & \texttt{date}, \texttt{time} & In ngày/giờ hiện tại đúng định dạng & Đạt \\
-\hline
-3 & \texttt{cd}, \texttt{cd src}, \texttt{cd ..} & Thay đổi và in thư mục hiện tại & Đạt \\
-\hline
-4 & \texttt{dir} & Liệt kê nội dung thư mục hiện tại & Đạt \\
-\hline
-5 & \texttt{cd C:\textbackslash this\_path\_does\_not\_exist\_xyz} & Báo lỗi đường dẫn không tồn tại & Đạt \\
-\hline
-6 & \texttt{path} & In các entry của biến \texttt{PATH} & Đạt \\
-\hline
-7 & \texttt{addpath C:\textbackslash mytest\_temp\_dir} & Thêm entry mới vào \texttt{PATH} trong phiên shell & Đạt \\
-\hline
-8 & \texttt{notepad \&} & Chạy tiến trình nền và lưu PID & Đạt \\
-\hline
-9 & \texttt{list} & Hiển thị danh sách background process & Đạt \\
-\hline
-10 & \texttt{stop <pid>} & Tạm dừng tiến trình nền & Đạt \\
-\hline
-11 & \texttt{resume <pid>} & Tiếp tục tiến trình đã dừng & Đạt \\
-\hline
-12 & \texttt{kill <pid>} & Hủy tiến trình nền & Đạt \\
-\hline
-13 & \texttt{kill abc}, \texttt{stop abc}, \texttt{resume abc} & Kiểm tra báo lỗi PID không hợp lệ & Đạt \\
-\hline
-14 & \texttt{date \&}, \texttt{help \&}, \texttt{dir \&} & Không cho built-in chạy background & Đạt \\
-\hline
-15 & \texttt{test.bat} & Chạy bộ test batch & Đạt \\
-\hline
+	\hline
+	\textbf{STT} & \textbf{Lệnh kiểm thử}                                         & \textbf{Mục tiêu}                                  & \textbf{Kết quả} \\
+	\hline
+	1            & \texttt{help}                                                  & In bảng lệnh hỗ trợ                                & Đạt              \\
+	\hline
+	2            & \texttt{date}, \texttt{time}                                   & In ngày/giờ hiện tại đúng định dạng                & Đạt              \\
+	\hline
+	3            & \texttt{cd}, \texttt{cd src}, \texttt{cd ..}                   & Thay đổi và in thư mục hiện tại                    & Đạt              \\
+	\hline
+	4            & \texttt{dir}                                                   & Liệt kê nội dung thư mục hiện tại                  & Đạt              \\
+	\hline
+	5            & \texttt{cd C:\textbackslash this\_path\_does\_not\_exist\_xyz} & Báo lỗi đường dẫn không tồn tại                    & Đạt              \\
+	\hline
+	6            & \texttt{path}                                                  & In các entry của biến \texttt{PATH}                & Đạt              \\
+	\hline
+	7            & \texttt{addpath C:\textbackslash mytest\_temp\_dir}            & Thêm entry mới vào \texttt{PATH} trong phiên shell & Đạt              \\
+	\hline
+	8            & \texttt{notepad \&}                                            & Chạy tiến trình nền và lưu PID                     & Đạt              \\
+	\hline
+	9            & \texttt{list}                                                  & Hiển thị danh sách background process              & Đạt              \\
+	\hline
+	10           & \texttt{stop <pid>}                                            & Tạm dừng tiến trình nền                            & Đạt              \\
+	\hline
+	11           & \texttt{resume <pid>}                                          & Tiếp tục tiến trình đã dừng                        & Đạt              \\
+	\hline
+	12           & \texttt{kill <pid>}                                            & Hủy tiến trình nền                                 & Đạt              \\
+	\hline
+	13           & \texttt{kill abc}, \texttt{stop abc}, \texttt{resume abc}      & Kiểm tra báo lỗi PID không hợp lệ                  & Đạt              \\
+	\hline
+	14           & \texttt{date \&}, \texttt{help \&}, \texttt{dir \&}            & Không cho built-in chạy background                 & Đạt              \\
+	\hline
+	15           & \texttt{test.bat}                                              & Chạy bộ test batch                                 & Đạt              \\
+	\hline
 \end{longtable}
 
 \section{Kết quả chạy chương trình}
@@ -809,15 +809,15 @@ Bộ kiểm thử \texttt{test.bat} được dùng để kiểm tra tự động
 Khi chạy \texttt{myShell.exe}, chương trình in banner giới thiệu. Lệnh \texttt{help} hiển thị bảng các built-in commands, nhóm quản lý tiến trình và nhóm biến môi trường.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_banner.png}
-    \caption{Khởi động myShell}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_banner.png}
+	\caption{Khởi động myShell}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_help.png}
-    \caption{Kết quả lệnh help}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_help.png}
+	\caption{Kết quả lệnh help}
 \end{figure}
 
 \subsection{Kiểm thử ngày, giờ và thư mục hiện tại}
@@ -825,15 +825,15 @@ Khi chạy \texttt{myShell.exe}, chương trình in banner giới thiệu. Lện
 Các lệnh \texttt{date} và \texttt{time} in đúng định dạng. Lệnh \texttt{cd} không tham số in thư mục hiện tại; lệnh \texttt{cd src} và \texttt{cd ..} thay đổi prompt tương ứng.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_date_time.png}
-    \caption{Kết quả lệnh date và time}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_date_time.png}
+	\caption{Kết quả lệnh date và time}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_cd.png}
-    \caption{Kết quả kiểm thử lệnh cd}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_cd.png}
+	\caption{Kết quả kiểm thử lệnh cd}
 \end{figure}
 
 \subsection{Kiểm thử \texttt{dir}, lỗi đường dẫn và biến môi trường}
@@ -841,27 +841,27 @@ Các lệnh \texttt{date} và \texttt{time} in đúng định dạng. Lệnh \te
 Lệnh \texttt{dir} liệt kê nội dung thư mục. Khi nhập đường dẫn sai, shell báo lỗi có nội dung lấy từ hệ thống Windows. Lệnh \texttt{path} in biến môi trường theo từng dòng, còn \texttt{addpath} thêm thư mục mới vào cuối \texttt{PATH} trong phiên hiện tại.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.88\textwidth]{figures/ketqua_dir.png}
-    \caption{Kết quả lệnh dir}
+	\centering
+	\includegraphics[width=0.88\textwidth]{figures/ketqua_dir.png}
+	\caption{Kết quả lệnh dir}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_cd_error.png}
-    \caption{Kết quả báo lỗi khi cd tới đường dẫn không tồn tại}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_cd_error.png}
+	\caption{Kết quả báo lỗi khi cd tới đường dẫn không tồn tại}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_path.png}
-    \caption{Kết quả lệnh path}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_path.png}
+	\caption{Kết quả lệnh path}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_addpath.png}
-    \caption{Kết quả lệnh addpath và kiểm tra lại PATH}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_addpath.png}
+	\caption{Kết quả lệnh addpath và kiểm tra lại PATH}
 \end{figure}
 
 \subsection{Kiểm thử background process}
@@ -869,15 +869,15 @@ Lệnh \texttt{dir} liệt kê nội dung thư mục. Khi nhập đường dẫn
 Lệnh \texttt{notepad \&} tạo tiến trình nền, in PID và cho shell tiếp tục nhận lệnh. Sau đó \texttt{list} hiển thị trạng thái \texttt{Running}. Các lệnh \texttt{stop}, \texttt{resume}, \texttt{kill} cập nhật trạng thái tiến trình đúng như yêu cầu.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_background_start.png}
-    \caption{Tạo background process bằng notepad \&}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_background_start.png}
+	\caption{Tạo background process bằng notepad \&}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_background_manage.png}
-    \caption{Kiểm thử list, stop, resume và kill với background process}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_background_manage.png}
+	\caption{Kiểm thử list, stop, resume và kill với background process}
 \end{figure}
 
 \subsection{Kiểm thử trường hợp lỗi}
@@ -885,15 +885,15 @@ Lệnh \texttt{notepad \&} tạo tiến trình nền, in PID và cho shell tiế
 Với PID không hợp lệ như \texttt{abc}, các lệnh \texttt{kill}, \texttt{stop}, \texttt{resume} đều báo lỗi rõ ràng. Khi cố chạy built-in ở background, shell từ chối vì built-in phải chạy trong shell process.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_invalid_pid.png}
-    \caption{Báo lỗi khi PID không hợp lệ}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_invalid_pid.png}
+	\caption{Báo lỗi khi PID không hợp lệ}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.82\textwidth]{figures/ketqua_builtin_bg.png}
-    \caption{Báo lỗi khi cố chạy built-in command ở background}
+	\centering
+	\includegraphics[width=0.82\textwidth]{figures/ketqua_builtin_bg.png}
+	\caption{Báo lỗi khi cố chạy built-in command ở background}
 \end{figure}
 
 \subsection{Kiểm thử bằng \texttt{test.bat}}
@@ -901,25 +901,25 @@ Với PID không hợp lệ như \texttt{abc}, các lệnh \texttt{kill}, \textt
 File \texttt{test.bat} chạy lần lượt các test tự động: ngày, giờ, liệt kê thư mục, đổi thư mục, đường dẫn sai, PATH, addpath, list, foreground process bằng \texttt{ping} và help. Cuối file có gợi ý các test thủ công cho background process và \texttt{CTRL+C}.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.88\textwidth]{figures/ketqua_test_1.png}
-    \caption{Một phần kết quả chạy test.bat - nhóm test đầu}
+	\centering
+	\includegraphics[width=0.88\textwidth]{figures/ketqua_test_1.png}
+	\caption{Một phần kết quả chạy test.bat - nhóm test đầu}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.88\textwidth]{figures/ketqua_test_2.png}
-    \caption{Một phần kết quả chạy test.bat - kiểm tra PATH, addpath, list và ping}
+	\centering
+	\includegraphics[width=0.88\textwidth]{figures/ketqua_test_2.png}
+	\caption{Một phần kết quả chạy test.bat - kiểm tra PATH, addpath, list và ping}
 \end{figure}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.88\textwidth]{figures/ketqua_test_3.png}
-    \caption{Một phần kết quả chạy test.bat - bảng help}
+	\centering
+	\includegraphics[width=0.88\textwidth]{figures/ketqua_test_3.png}
+	\caption{Một phần kết quả chạy test.bat - bảng help}
 \end{figure}
 
 \begin{resultBox}{Nhận xét kết quả}
-Các kết quả chạy trên máy cá nhân cho thấy shell đáp ứng các yêu cầu chính của đề bài: nhận lệnh, chạy foreground/background process, quản lý background process, xử lý built-in command, cập nhật PATH trong phiên hiện tại, chạy batch file và báo lỗi với các trường hợp nhập sai.
+	Các kết quả chạy trên máy cá nhân cho thấy shell đáp ứng các yêu cầu chính của đề bài: nhận lệnh, chạy foreground/background process, quản lý background process, xử lý built-in command, cập nhật PATH trong phiên hiện tại, chạy batch file và báo lỗi với các trường hợp nhập sai.
 \end{resultBox}
 
 % ============================================================
@@ -928,41 +928,41 @@ Các kết quả chạy trên máy cá nhân cho thấy shell đáp ứng các y
 \section{Các yêu cầu đã hoàn thành}
 
 \begin{table}[H]
-\centering
-\renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{|p{1.2cm}|X|p{3cm}|}
-\hline
-\textbf{STT} & \textbf{Yêu cầu} & \textbf{Trạng thái} \\
-\hline
-1 & Shell nhận lệnh, phân tích tham số và tạo tiến trình con & Hoàn thành \\
-\hline
-2 & Foreground mode: shell chờ tiến trình con kết thúc & Hoàn thành \\
-\hline
-3 & Background mode: shell và tiến trình chạy song song & Hoàn thành \\
-\hline
-4 & Quản lý tiến trình nền bằng list/kill/stop/resume & Hoàn thành \\
-\hline
-5 & Built-in commands: exit/help/date/time/cd/dir/path/addpath & Hoàn thành \\
-\hline
-6 & \texttt{CTRL+C} hủy foreground process, shell tiếp tục sống & Hoàn thành \\
-\hline
-7 & Hỗ trợ file \texttt{.bat}/\texttt{.cmd} & Hoàn thành \\
-\hline
-8 & Báo lỗi Win32 rõ ràng bằng \texttt{FormatMessageA} & Hoàn thành \\
-\hline
-\end{tabularx}
-\caption{Tổng hợp mức độ hoàn thành yêu cầu}
+	\centering
+	\renewcommand{\arraystretch}{1.25}
+	\begin{tabularx}{\textwidth}{|p{1.2cm}|X|p{3cm}|}
+		\hline
+		\textbf{STT} & \textbf{Yêu cầu}                                            & \textbf{Trạng thái} \\
+		\hline
+		1            & Shell nhận lệnh, phân tích tham số và tạo tiến trình con    & Hoàn thành          \\
+		\hline
+		2            & Foreground mode: shell chờ tiến trình con kết thúc          & Hoàn thành          \\
+		\hline
+		3            & Background mode: shell và tiến trình chạy song song         & Hoàn thành          \\
+		\hline
+		4            & Quản lý tiến trình nền bằng list/kill/stop/resume           & Hoàn thành          \\
+		\hline
+		5            & Built-in commands: exit/help/date/time/cd/dir/path/addpath  & Hoàn thành          \\
+		\hline
+		6            & \texttt{CTRL+C} hủy foreground process, shell tiếp tục sống & Hoàn thành          \\
+		\hline
+		7            & Hỗ trợ file \texttt{.bat}/\texttt{.cmd}                     & Hoàn thành          \\
+		\hline
+		8            & Báo lỗi Win32 rõ ràng bằng \texttt{FormatMessageA}          & Hoàn thành          \\
+		\hline
+	\end{tabularx}
+	\caption{Tổng hợp mức độ hoàn thành yêu cầu}
 \end{table}
 
 \section{Ưu điểm của cài đặt}
 
 \begin{itemize}[leftmargin=1.2cm]
-    \item Mã nguồn được chia module theo đúng trách nhiệm, dễ đọc và dễ mở rộng.
-    \item Không chỉ tạo tiến trình mà còn quản lý được vòng đời tiến trình nền.
-    \item Có cơ chế \texttt{reap\_processes()} để đóng handle và giải phóng slot khi process kết thúc.
-    \item Xử lý \texttt{CTRL+C} theo process group, tránh làm chết shell.
-    \item Hỗ trợ batch file nên có thể kiểm thử bằng script tự động.
-    \item Các lỗi Win32 được in thành thông báo dễ hiểu cho người dùng.
+	\item Mã nguồn được chia module theo đúng trách nhiệm, dễ đọc và dễ mở rộng.
+	\item Không chỉ tạo tiến trình mà còn quản lý được vòng đời tiến trình nền.
+	\item Có cơ chế \texttt{reap\_processes()} để đóng handle và giải phóng slot khi process kết thúc.
+	\item Xử lý \texttt{CTRL+C} theo process group, tránh làm chết shell.
+	\item Hỗ trợ batch file nên có thể kiểm thử bằng script tự động.
+	\item Các lỗi Win32 được in thành thông báo dễ hiểu cho người dùng.
 \end{itemize}
 
 \section{Hạn chế}
@@ -972,9 +972,9 @@ Các kết quả chạy trên máy cá nhân cho thấy shell đáp ứng các y
 Cơ chế \texttt{stop}/\texttt{resume} dựa trên \texttt{SuspendThread}/\texttt{ResumeThread}. Cách này phù hợp với project học thuật nhưng có rủi ro trong môi trường thực tế:
 
 \begin{itemize}[leftmargin=1.2cm]
-    \item Nếu thread bị suspend khi đang giữ lock quan trọng, chương trình có thể bị deadlock.
-    \item Nếu process tạo thêm thread sau thời điểm snapshot, thread mới có thể không bị suspend.
-    \item Windows không có một API đơn giản tương đương \texttt{SIGSTOP} để dừng an toàn toàn bộ process theo kiểu Unix.
+	\item Nếu thread bị suspend khi đang giữ lock quan trọng, chương trình có thể bị deadlock.
+	\item Nếu process tạo thêm thread sau thời điểm snapshot, thread mới có thể không bị suspend.
+	\item Windows không có một API đơn giản tương đương \texttt{SIGSTOP} để dừng an toàn toàn bộ process theo kiểu Unix.
 \end{itemize}
 
 \subsection{Phạm vi của \texttt{addpath}}
@@ -988,12 +988,12 @@ Hiện tại, hàm \texttt{run\_builtin()} dùng chuỗi \texttt{if}/\texttt{str
 \section{Hướng phát triển}
 
 \begin{itemize}[leftmargin=1.2cm]
-    \item Bổ sung chuyển hướng vào/ra file: \texttt{>}, \texttt{>>}, \texttt{<}.
-    \item Hỗ trợ pipeline: \texttt{cmd1 | cmd2}.
-    \item Thêm lịch sử lệnh và phím mũi tên để gọi lại lệnh cũ.
-    \item Cải tiến parser để hỗ trợ nhiều cú pháp đặc biệt hơn của Windows command line.
-    \item Dùng bảng dispatch để quản lý built-in command chuyên nghiệp hơn.
-    \item Dùng Windows Job Object để quản lý nhóm tiến trình nền an toàn hơn.
+	\item Bổ sung chuyển hướng vào/ra file: \texttt{>}, \texttt{>>}, \texttt{<}.
+	\item Hỗ trợ pipeline: \texttt{cmd1 | cmd2}.
+	\item Thêm lịch sử lệnh và phím mũi tên để gọi lại lệnh cũ.
+	\item Cải tiến parser để hỗ trợ nhiều cú pháp đặc biệt hơn của Windows command line.
+	\item Dùng bảng dispatch để quản lý built-in command chuyên nghiệp hơn.
+	\item Dùng Windows Job Object để quản lý nhóm tiến trình nền an toàn hơn.
 \end{itemize}
 
 % ============================================================
@@ -1008,37 +1008,37 @@ Thông qua project, nhóm đã thực hành trực tiếp các khái niệm quan
 \chapter{Phụ lục A - Danh sách lệnh hỗ trợ}
 
 \begin{longtable}{|p{4cm}|p{10.5cm}|}
-\hline
-\textbf{Lệnh} & \textbf{Ý nghĩa} \\
-\hline
-\texttt{exit} & Thoát shell, dọn các background process còn sống. \\
-\hline
-\texttt{help} & In bảng hướng dẫn các lệnh hỗ trợ. \\
-\hline
-\texttt{date} & In ngày hiện tại theo định dạng \texttt{YYYY-MM-DD}. \\
-\hline
-\texttt{time} & In giờ hiện tại theo định dạng \texttt{HH:MM:SS}. \\
-\hline
-\texttt{cd} & Không tham số: in thư mục hiện tại. \\
-\hline
-\texttt{cd <path>} & Chuyển thư mục làm việc của shell sang \texttt{<path>}. \\
-\hline
-\texttt{dir [path]} & Liệt kê nội dung thư mục hiện tại hoặc thư mục được chỉ định. \\
-\hline
-\texttt{path} & In biến môi trường \texttt{PATH} của phiên shell hiện tại. \\
-\hline
-\texttt{addpath <dir>} & Thêm \texttt{<dir>} vào \texttt{PATH} trong phiên hiện tại. \\
-\hline
-\texttt{list} & In danh sách background process. \\
-\hline
-\texttt{kill <pid>} & Hủy background process theo PID. \\
-\hline
-\texttt{stop <pid>} & Tạm dừng background process theo PID. \\
-\hline
-\texttt{resume <pid>} & Tiếp tục background process đang bị dừng. \\
-\hline
-\texttt{command \&} & Chạy \texttt{command} ở background nếu đó là lệnh ngoài. \\
-\hline
+	\hline
+	\textbf{Lệnh}          & \textbf{Ý nghĩa}                                              \\
+	\hline
+	\texttt{exit}          & Thoát shell, dọn các background process còn sống.             \\
+	\hline
+	\texttt{help}          & In bảng hướng dẫn các lệnh hỗ trợ.                            \\
+	\hline
+	\texttt{date}          & In ngày hiện tại theo định dạng \texttt{YYYY-MM-DD}.          \\
+	\hline
+	\texttt{time}          & In giờ hiện tại theo định dạng \texttt{HH:MM:SS}.             \\
+	\hline
+	\texttt{cd}            & Không tham số: in thư mục hiện tại.                           \\
+	\hline
+	\texttt{cd <path>}     & Chuyển thư mục làm việc của shell sang \texttt{<path>}.       \\
+	\hline
+	\texttt{dir [path]}    & Liệt kê nội dung thư mục hiện tại hoặc thư mục được chỉ định. \\
+	\hline
+	\texttt{path}          & In biến môi trường \texttt{PATH} của phiên shell hiện tại.    \\
+	\hline
+	\texttt{addpath <dir>} & Thêm \texttt{<dir>} vào \texttt{PATH} trong phiên hiện tại.   \\
+	\hline
+	\texttt{list}          & In danh sách background process.                              \\
+	\hline
+	\texttt{kill <pid>}    & Hủy background process theo PID.                              \\
+	\hline
+	\texttt{stop <pid>}    & Tạm dừng background process theo PID.                         \\
+	\hline
+	\texttt{resume <pid>}  & Tiếp tục background process đang bị dừng.                     \\
+	\hline
+	\texttt{command \&}    & Chạy \texttt{command} ở background nếu đó là lệnh ngoài.      \\
+	\hline
 \end{longtable}
 
 \chapter{Phụ lục B - Nội dung Makefile}
@@ -1122,20 +1122,20 @@ exit
 \addcontentsline{toc}{chapter}{Tài liệu tham khảo}
 
 \begin{thebibliography}{9}
-\bibitem{project-readme}
-Mã nguồn và README của project \textit{myShell - Tiny Windows Shell}.
+	\bibitem{project-readme}
+	Mã nguồn và README của project \textit{myShell - Tiny Windows Shell}.
 
-\bibitem{microsoft-createprocess}
-Microsoft Learn, \textit{CreateProcessA function - processthreadsapi.h}.
+	\bibitem{microsoft-createprocess}
+	Microsoft Learn, \textit{CreateProcessA function - processthreadsapi.h}.
 
-\bibitem{microsoft-console}
-Microsoft Learn, \textit{Console control handlers and console control events}.
+	\bibitem{microsoft-console}
+	Microsoft Learn, \textit{Console control handlers and console control events}.
 
-\bibitem{microsoft-toolhelp}
-Microsoft Learn, \textit{Tool Help Library and thread/process enumeration APIs}.
+	\bibitem{microsoft-toolhelp}
+	Microsoft Learn, \textit{Tool Help Library and thread/process enumeration APIs}.
 
-\bibitem{os-book}
-A. Silberschatz, P. B. Galvin, G. Gagne, \textit{Operating System Concepts}, Wiley.
+	\bibitem{os-book}
+	A. Silberschatz, P. B. Galvin, G. Gagne, \textit{Operating System Concepts}, Wiley.
 \end{thebibliography}
 
 \end{document}

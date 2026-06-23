@@ -13,6 +13,11 @@
 #include <string.h>
 #include <ctype.h>
 
+#if !defined(_MSC_VER)
+char *_strdup(const char *s);
+int _stricmp(const char *a, const char *b);
+#endif
+
 /* ── Limits ─────────────────────────────────────────── */
 #define MAX_CMD_LEN     1024
 #define MAX_ARGS        64
@@ -46,5 +51,6 @@ typedef struct {
 extern BgProcess bg_procs[MAX_BG_PROCS];
 extern int       bg_count;
 extern HANDLE    g_fg_process;   /* handle to current foreground child */
+extern volatile DWORD g_fg_pid;   /* process-group id for CTRL+C routing */
 
 #endif /* SHELL_H */
