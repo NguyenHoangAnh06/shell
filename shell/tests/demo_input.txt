@@ -1,0 +1,48 @@
+cmd.exe /d /c echo [TEST 1] date -- expect YYYY-MM-DD
+date
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 2] time -- expect HH:MM:SS
+time
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 3] dir -- expect directory listing
+dir .
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 4] cd without args -- expect current path
+cd
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 5] cd to src and back
+cd src
+cd
+cd ..
+cd
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 6] invalid path -- expect an error
+cd C:\this_path_does_not_exist_xyz
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 7] path -- expect session PATH
+path
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 8] addpath twice -- expect both entries
+addpath C:\myShell_test_one
+addpath C:\myShell_test_two
+path
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 9] list -- expect no background processes
+list
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 10] foreground ping -- waits for completion
+ping -n 2 127.0.0.1
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 11] invalid PID handling
+kill abc
+stop abc
+resume abc
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 12] built-ins cannot run in background
+date &
+help &
+dir &
+cmd.exe /d /c echo.
+cmd.exe /d /c echo [TEST 13] help -- expect command table
+help
+exit

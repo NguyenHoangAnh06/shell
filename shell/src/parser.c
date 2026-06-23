@@ -27,7 +27,7 @@ static void unescape_quoted_token(char *s, char quote)
 
 int parse_command(const char *line, ParsedCmd *cmd)
 {
-    static char buf[MAX_CMD_LEN];
+    char  buf[MAX_CMD_LEN];
     int   i, argc = 0;
     int   in_quote = 0;
     char  quote = '\0';

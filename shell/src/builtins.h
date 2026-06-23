@@ -16,4 +16,7 @@ int is_builtin(const ParsedCmd *cmd);
  */
 int run_builtin(ParsedCmd *cmd);
 
+/* NULL-terminated command-name table used by the interactive completer. */
+const char *const *builtin_names(void);
+
 #endif /* BUILTINS_H */

@@ -9,6 +9,7 @@ SRCS    = $(SRCDIR)/main.c \
           $(SRCDIR)/process.c \
           $(SRCDIR)/process_list.c \
           $(SRCDIR)/builtins.c \
+          $(SRCDIR)/line_editor.c \
           $(SRCDIR)/shell_utils.c
 
 OBJS    = $(SRCS:.c=.o)
@@ -22,6 +23,10 @@ $(SRCDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -I$(SRCDIR) -c -o $@ $<
 
 clean:
-	del /Q $(SRCDIR)\*.o $(TARGET) 2>NUL || true
+	-del /Q $(SRCDIR)\*.o $(TARGET) 2>NUL
 
-.PHONY: all clean
+test: $(TARGET)
+	powershell -NoProfile -ExecutionPolicy Bypass -File tests\regression.ps1
+	python tests\ctrl_c_test.py
+
+.PHONY: all clean test

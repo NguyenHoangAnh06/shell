@@ -1,0 +1,11 @@
+date
+time
+cd
+dir .
+addpath C:\myShell-test-one
+addpath C:\myShell-test-two
+path
+list
+tests\echo_args.bat normal-value
+tests\echo_args.bat "hello&echo INJECTED"
+exit
