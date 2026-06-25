@@ -82,12 +82,14 @@ static BgProcess *find_proc(DWORD pid)
 }
 
 /* ─────────────────────────────────────────────────────── */
+static int toggle_process_tree_threads(DWORD root_pid, int suspend);
+static int terminate_process_tree(BgProcess *p);
 int kill_process(DWORD pid)
 {
     BgProcess *p = find_proc(pid);
     if (!p) { fprintf(stderr, "kill: no background process with PID %lu\n", (unsigned long)pid); return -1; }
-    if (!TerminateProcess(p->hProcess, 1)) {
-        fprintf(stderr, "kill: TerminateProcess failed (error %lu)\n", (unsigned long)GetLastError());
+    if (terminate_process_tree(p) < 0) {
+        fprintf(stderr, "kill: TerminateProcess failed for process tree (error %lu)\n", (unsigned long)GetLastError());
         return -1;
     }
     CloseHandle(p->hProcess);
@@ -180,6 +182,103 @@ static int toggle_process_threads(DWORD pid, int suspend)
     return result;
 }
 
+
+static int pid_in_array(const DWORD *pids, size_t count, DWORD pid)
+{
+    size_t i;
+    for (i = 0; i < count; i++) {
+        if (pids[i] == pid) return 1;
+    }
+    return 0;
+}
+
+static size_t collect_process_tree(DWORD root_pid, DWORD *pids, size_t max_pids)
+{
+    HANDLE snap;
+    PROCESSENTRY32 pe;
+    size_t count = 0;
+    int changed;
+
+    if (max_pids == 0) return 0;
+    pids[count++] = root_pid;
+
+    snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snap == INVALID_HANDLE_VALUE) return count;
+
+    do {
+        changed = 0;
+        pe.dwSize = sizeof(pe);
+        if (Process32First(snap, &pe)) {
+            do {
+                if (count >= max_pids) break;
+                if (pid_in_array(pids, count, pe.th32ProcessID)) continue;
+                if (pid_in_array(pids, count, pe.th32ParentProcessID)) {
+                    pids[count++] = pe.th32ProcessID;
+                    changed = 1;
+                }
+            } while (Process32Next(snap, &pe));
+        }
+    } while (changed && count < max_pids);
+
+    CloseHandle(snap);
+    return count;
+}
+
+static int toggle_process_tree_threads(DWORD root_pid, int suspend)
+{
+    DWORD pids[256];
+    size_t count;
+    size_t changed = 0;
+    size_t i;
+
+    count = collect_process_tree(root_pid, pids, 256);
+    if (count == 0) return -1;
+
+    for (i = 0; i < count; i++) {
+        if (toggle_process_threads(pids[i], suspend) < 0) break;
+        changed++;
+    }
+
+    if (changed == count) return 0;
+
+    while (changed > 0) {
+        changed--;
+        toggle_process_threads(pids[changed], !suspend);
+    }
+    return -1;
+}
+
+static int terminate_process_tree(BgProcess *p)
+{
+    DWORD pids[256];
+    size_t count;
+    size_t i;
+    int failed = 0;
+
+    count = collect_process_tree(p->pid, pids, 256);
+    if (count == 0) return -1;
+
+    for (i = count; i > 0; i--) {
+        DWORD target_pid = pids[i - 1];
+        HANDLE hp;
+
+        if (target_pid == p->pid) {
+            hp = p->hProcess;
+        } else {
+            hp = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, FALSE, target_pid);
+            if (!hp) {
+                failed = 1;
+                continue;
+            }
+        }
+
+        if (!TerminateProcess(hp, 1)) failed = 1;
+        if (target_pid != p->pid) CloseHandle(hp);
+    }
+
+    return failed ? -1 : 0;
+}
+
 int stop_process(DWORD pid)
 {
     BgProcess *p = find_proc(pid);
@@ -188,8 +287,8 @@ int stop_process(DWORD pid)
         fprintf(stderr, "stop: process %lu is already stopped\n", (unsigned long)pid);
         return -1;
     }
-    if (toggle_process_threads(pid, 1) < 0) {
-        fprintf(stderr, "stop: failed to suspend process %lu\n", (unsigned long)pid); return -1;
+    if (toggle_process_tree_threads(pid, 1) < 0) {
+        fprintf(stderr, "stop: failed to suspend process tree rooted at %lu\n", (unsigned long)pid); return -1;
     }
     p->status = PROC_STOPPED;
     printf("[%lu] Stopped\n", (unsigned long)pid);
@@ -204,8 +303,8 @@ int resume_process(DWORD pid)
         fprintf(stderr, "resume: process %lu is not stopped\n", (unsigned long)pid);
         return -1;
     }
-    if (toggle_process_threads(pid, 0) < 0) {
-        fprintf(stderr, "resume: failed to resume process %lu\n", (unsigned long)pid); return -1;
+    if (toggle_process_tree_threads(pid, 0) < 0) {
+        fprintf(stderr, "resume: failed to resume process tree rooted at %lu\n", (unsigned long)pid); return -1;
     }
     p->status = PROC_RUNNING;
     printf("[%lu] Resumed\n", (unsigned long)pid);

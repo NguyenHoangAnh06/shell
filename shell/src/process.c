@@ -166,6 +166,40 @@ static void wait_foreground(PROCESS_INFORMATION *pi)
     g_fg_process = INVALID_HANDLE_VALUE;
 }
 
+static int open_background_null_handles(HANDLE *hNullIn, HANDLE *hNullOut)
+{
+    SECURITY_ATTRIBUTES sa;
+
+    sa.nLength = sizeof(sa);
+    sa.lpSecurityDescriptor = NULL;
+    sa.bInheritHandle = TRUE;
+
+    *hNullIn = CreateFileW(
+        L"NUL",
+        GENERIC_READ,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        &sa,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+    if (*hNullIn == INVALID_HANDLE_VALUE) return -1;
+
+    *hNullOut = CreateFileW(
+        L"NUL",
+        GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        &sa,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
+    if (*hNullOut == INVALID_HANDLE_VALUE) {
+        CloseHandle(*hNullIn);
+        *hNullIn = INVALID_HANDLE_VALUE;
+        return -1;
+    }
+
+    return 0;
+}
 void run_process(ParsedCmd *cmd)
 {
     wchar_t cmdline[WIDE_CMD_CAP];
@@ -174,6 +208,9 @@ void run_process(ParsedCmd *cmd)
     PROCESS_INFORMATION pi;
     BOOL ok;
     int build_rc;
+    DWORD creation_flags = CREATE_NEW_PROCESS_GROUP;
+    HANDLE hNullIn = INVALID_HANDLE_VALUE;
+    HANDLE hNullOut = INVALID_HANDLE_VALUE;
 
     if (is_batch(cmd->argv[0]))
         build_rc = build_batch_cmdline(cmd, cmdline, WIDE_CMD_CAP);
@@ -199,18 +236,37 @@ void run_process(ParsedCmd *cmd)
     ZeroMemory(&pi, sizeof(pi));
     si.cb = sizeof(si);
 
+    if (cmd->is_background) {
+        if (open_background_null_handles(&hNullIn, &hNullOut) < 0) {
+            shell_perror("background redirection");
+            return;
+        }
+        si.dwFlags |= STARTF_USESTDHANDLES;
+        si.hStdInput = hNullIn;
+        si.hStdOutput = hNullOut;
+        si.hStdError = hNullOut;
+        creation_flags |= CREATE_NO_WINDOW;
+    }
     ok = CreateProcessW(
         NULL,
         cmdline,
         NULL,
         NULL,
         TRUE,
-        CREATE_NEW_PROCESS_GROUP,
+        creation_flags,
         NULL,
         NULL,
         &si,
         &pi);
 
+    if (hNullIn != INVALID_HANDLE_VALUE) {
+        CloseHandle(hNullIn);
+        hNullIn = INVALID_HANDLE_VALUE;
+    }
+    if (hNullOut != INVALID_HANDLE_VALUE) {
+        CloseHandle(hNullOut);
+        hNullOut = INVALID_HANDLE_VALUE;
+    }
     if (!ok) {
         shell_perror(cmd->argv[0]);
         return;
